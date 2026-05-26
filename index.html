@@ -1384,6 +1384,7 @@ function renderCalendarHTML() {
       <div class="cal-week-label">📅 ${weekLabel}</div>
       <button onclick="calNav(1)">Next →</button>
       ${calWeekOffset !== 0 ? `<button onclick="calNav(0,'reset')">This week</button>` : ''}
+      <button onclick="exportWeekToICS()" style="margin-left:auto;padding:5px 14px;background:var(--accent);color:var(--header-bg);border:none;border-radius:6px;font-size:.7rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;letter-spacing:.2px;" onmouseover="this.style.background='#f9be5a'" onmouseout="this.style.background='var(--accent)'">📥 Export to Outlook</button>
     </div>
     <div class="cal-legend">${legendHTML}
       <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--danger)"></div>Fixed Date</div>
@@ -1403,6 +1404,95 @@ function hexToRgb(hex) {
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
   return `${r},${g},${b}`;
+}
+
+// ── EXPORT TO OUTLOOK (.ics) ──
+function escICS(str) {
+  if (!str) return '';
+  return String(str).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');
+}
+
+function exportWeekToICS() {
+  const weekDates = getWeekDates(calWeekOffset);
+  const schedule = buildCalendarSchedule(weekDates);
+  const pad = n => String(n).padStart(2,'0');
+
+  const fmtDT = (dateStr, hour) => {
+    const [y, m, d] = dateStr.split('-');
+    const h = Math.floor(hour);
+    const min = pad(Math.round((hour - h) * 60));
+    return `${y}${m}${d}T${pad(h)}${min}00`;
+  };
+
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Marketing Task Hub//Pooja//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'X-WR-CALNAME:Marketing Tasks',
+    'X-WR-TIMEZONE:Europe/Amsterdam'
+  ];
+
+  let eventCount = 0;
+
+  Object.entries(schedule).forEach(([dayStr, dayData]) => {
+    if (dayData.isOOO || !dayData.events || !dayData.events.length) return;
+    dayData.events.forEach(ev => {
+      const ch = CHANNELS[ev.channel] || { icon:'', label: ev.channel };
+      const chunkNote = ev.isPartial ? ` (${ev.durationHrs}h of ${ev.totalHours}h total)` : ` (${ev.durationHrs}h)`;
+      const window = ev.isCreative ? 'Morning block' : (ev.startHour >= 18 ? 'Overtime block' : 'Afternoon block');
+      const desc = escICS([
+        `Project: ${ev.projectName}`,
+        `Channel: ${ch.label}`,
+        `Hours: ${ev.durationHrs}h${ev.isPartial ? ` of ${ev.totalHours}h total` : ''}`,
+        ev.person ? `Person: ${ev.person}` : '',
+        ev.remarks ? `Notes: ${ev.remarks}` : '',
+        ev.isFixed ? 'Fixed date task' : ''
+      ].filter(Boolean).join('\\n'));
+
+      lines.push('BEGIN:VEVENT');
+      lines.push(`UID:${dayStr}-${ev.id}-${ev.startHour}@marketing-task-hub`);
+      lines.push(`DTSTART;TZID=Europe/Amsterdam:${fmtDT(dayStr, ev.startHour)}`);
+      lines.push(`DTEND;TZID=Europe/Amsterdam:${fmtDT(dayStr, ev.startHour + ev.durationHrs)}`);
+      lines.push(`SUMMARY:${escICS(ev.name)}${escICS(chunkNote)}`);
+      lines.push(`DESCRIPTION:${desc}`);
+      lines.push(`CATEGORIES:${escICS(ch.label)}`);
+      lines.push(`LOCATION:${escICS(window)}`);
+      if (ev.due) lines.push(`X-DUE-DATE:${ev.due}`);
+      lines.push('STATUS:CONFIRMED');
+      lines.push('TRANSP:OPAQUE');
+      lines.push('END:VEVENT');
+      eventCount++;
+    });
+  });
+
+  lines.push('END:VCALENDAR');
+
+  if (eventCount === 0) {
+    alert('No tasks are scheduled this week.\n\nMake sure your tasks have both a due date and Time Needed (hours) set.');
+    return;
+  }
+
+  const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const workDays = weekDates.filter(d => isWeekday(d));
+  const wStart = workDays[0];
+  a.download = `marketing-tasks-${wStart.getFullYear()}-${pad(wStart.getMonth()+1)}-${pad(wStart.getDate())}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  // Show a small confirmation toast
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;top:72px;left:50%;transform:translateX(-50%) scale(.95);background:#02323e;color:#fff;padding:10px 22px;border-radius:30px;font-size:.8rem;font-weight:600;z-index:9998;box-shadow:0 4px 18px rgba(2,50,62,.25);transition:all .25s;opacity:0;font-family:DM Sans,sans-serif;white-space:nowrap;';
+  toast.textContent = `📥 ${eventCount} task${eventCount !== 1 ? 's' : ''} exported — open the .ics file to import into Outlook`;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => { toast.style.opacity = '1'; toast.style.transform = 'translateX(-50%) scale(1)'; });
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(-50%) scale(.95)'; setTimeout(() => toast.remove(), 280); }, 3500);
 }
 
 function calNav(dir, mode) {
