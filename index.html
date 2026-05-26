@@ -2233,6 +2233,8 @@ function renderJuiceView() {
   const content = document.getElementById('main-content');
 
   // ── Follower cards ──
+  const ourLatest = latest ? (latest['relyon_nl'] || null) : null;
+
   const cardsHTML = JUICE_COMPANIES.map(c => {
     const cur  = latest ? (latest[c.key] || null) : null;
     const prv  = prev   ? (prev[c.key]   || null) : null;
@@ -2241,10 +2243,24 @@ function renderJuiceView() {
     const growthHTML = diff === null
       ? `<div class="juice-growth-neu" style="margin-top:8px;">No previous data</div>`
       : diff > 0
-        ? `<div class="juice-growth-pos" style="margin-top:8px;">↑ +${diff.toLocaleString()}${pct ? ` (${pct}%)` : ''} vs prev</div>`
+        ? `<div class="juice-growth-pos" style="margin-top:8px;">↑ +${diff.toLocaleString()} vs prev</div>`
         : diff < 0
-          ? `<div class="juice-growth-neg" style="margin-top:8px;">↓ ${diff.toLocaleString()}${pct ? ` (${pct}%)` : ''} vs prev</div>`
+          ? `<div class="juice-growth-neg" style="margin-top:8px;">↓ ${Math.abs(diff).toLocaleString()} vs prev</div>`
           : `<div class="juice-growth-neu" style="margin-top:8px;">→ No change vs prev</div>`;
+
+    // vs RelyOn NL comparison arrow (competitors only)
+    let vsOursHTML = '';
+    if (!c.isOwn && cur !== null && ourLatest !== null) {
+      const vsDiff = cur - ourLatest;
+      if (vsDiff > 0) {
+        vsOursHTML = `<div style="display:inline-flex;align-items:center;gap:3px;margin-left:7px;padding:1px 7px;background:rgba(232,96,76,.1);border-radius:20px;font-size:.62rem;font-weight:700;color:var(--danger);">▲ +${vsDiff.toLocaleString()}</div>`;
+      } else if (vsDiff < 0) {
+        vsOursHTML = `<div style="display:inline-flex;align-items:center;gap:3px;margin-left:7px;padding:1px 7px;background:rgba(45,184,154,.1);border-radius:20px;font-size:.62rem;font-weight:700;color:var(--accent2);">▼ ${vsDiff.toLocaleString()}</div>`;
+      } else {
+        vsOursHTML = `<div style="display:inline-flex;align-items:center;gap:3px;margin-left:7px;padding:1px 7px;background:var(--surface);border-radius:20px;font-size:.62rem;color:var(--muted);">= Tied</div>`;
+      }
+    }
+
     return `<div class="juice-follower-card ${c.isOwn ? 'own' : ''}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
         <div>
@@ -2253,8 +2269,11 @@ function renderJuiceView() {
         </div>
         <a href="${c.url}" target="_blank" class="juice-li-btn">in ↗</a>
       </div>
-      <div class="juice-num" style="color:${c.isOwn ? 'var(--accent)' : 'var(--text)'};">${cur !== null ? cur.toLocaleString() : '—'}</div>
-      <div style="font-size:.6rem;color:var(--muted);">followers</div>
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:2px;">
+        <div class="juice-num" style="color:${c.isOwn ? 'var(--accent)' : 'var(--text)'};">${cur !== null ? cur.toLocaleString() : '—'}</div>
+        ${vsOursHTML}
+      </div>
+      <div style="font-size:.6rem;color:var(--muted);margin-bottom:2px;">followers${!c.isOwn && cur !== null && ourLatest !== null ? ' &nbsp;·&nbsp; vs RelyOn NL' : ''}</div>
       ${growthHTML}
     </div>`;
   }).join('');
