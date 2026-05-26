@@ -659,7 +659,13 @@ function renderSidebar() {
     const li = document.createElement('li');
     li.className = 'project-item' + (p.id === activeProjectId ? ' active' : '');
     li.onclick = () => selectProject(p.id);
-    li.innerHTML = `<div class="proj-name-row"><span>${escH(p.name)}</span><span class="pct">${pct}%</span></div>
+    li.innerHTML = `<div class="proj-name-row">
+        <span>${escH(p.name)}</span>
+        <div style="display:flex;align-items:center;gap:5px;">
+          <span class="pct">${pct}%</span>
+          <button style="background:none;border:none;cursor:pointer;font-size:.8rem;padding:1px 3px;border-radius:3px;color:var(--muted);line-height:1;transition:color .15s;" onmouseenter="this.style.color='var(--accent)'" onmouseleave="this.style.color='var(--muted)'" onclick="event.stopPropagation();openEditProject('${p.id}')" title="Edit project name">✏️</button>
+        </div>
+      </div>
       ${p.entity ? `<div class="proj-entity-tag">${escH(p.entity)}</div>` : ''}
       <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
       <div class="task-count">${done}/${p.tasks.length} done</div>
@@ -667,6 +673,16 @@ function renderSidebar() {
     list.appendChild(li);
   });
   updateHeaderStats();
+}
+
+function openEditProject(id) {
+  const p = getProject(id); if (!p) return;
+  editingProjectId = id;
+  document.getElementById('modal-project-title').textContent = 'Edit Project';
+  document.getElementById('input-project-name').value = p.name || '';
+  document.getElementById('input-project-entity').value = p.entity || '';
+  openModal('modal-project');
+  setTimeout(() => document.getElementById('input-project-name').focus(), 100);
 }
 function selectProject(id) { activeProjectId = id; activeFilter = 'all'; renderSidebar(); renderProjectView(); }
 
@@ -1144,7 +1160,7 @@ function buildCalendarSchedule(weekDates) {
   }
 
   allTasks.forEach(task => {
-    // Fixed-date tasks
+    // Fixed-date tasks — unchanged, always pinned to their exact date
     if (task.fixedDate) {
       const dayStr = task.fixedDate;
       const slot = schedule[dayStr];
@@ -1178,7 +1194,22 @@ function buildCalendarSchedule(weekDates) {
     let hoursLeft = parseFloat(task.hours);
     const totalHours = hoursLeft;
 
-    const candidateDays = availDateStrs.filter(d => !task.due || d <= task.due);
+    // ── Reverse scheduling: start from due date, work backward to today ──
+    // If it's before 18:00 use today, otherwise use next working day as earliest start
+    const _now = new Date();
+    let _startDay = todayStr();
+    if (_now.getHours() >= 18) {
+      const _nd = new Date(_now);
+      _nd.setDate(_nd.getDate() + 1);
+      while (!isWeekday(_nd)) _nd.setDate(_nd.getDate() + 1);
+      _startDay = localDateStr(_nd);
+    }
+
+    // Collect days between startDay and due date, then REVERSE so due date is first
+    const candidateDays = availDateStrs
+      .filter(d => d >= _startDay && (!task.due || d <= task.due))
+      .slice() // copy
+      .reverse(); // due date → today
 
     for (const dayStr of candidateDays) {
       if (hoursLeft <= 0) break;
@@ -1209,9 +1240,10 @@ function buildCalendarSchedule(weekDates) {
       }
     }
 
-    // Tasks with no due date placed on first available days
+    // Tasks with no due date: place on earliest available days (forward, no reversal)
     if (hoursLeft > 0 && !task.due) {
-      for (const dayStr of availDateStrs) {
+      const forwardDays = availDateStrs.filter(d => d >= _startDay);
+      for (const dayStr of forwardDays) {
         if (hoursLeft <= 0) break;
         const slot = schedule[dayStr];
         slot._dayStr = dayStr;
@@ -1625,11 +1657,13 @@ function saveTask() {
   if (editingTaskId) {
     const t = p.tasks.find(x => x.id === editingTaskId);
     if (t) {
+      const wasNotDone = !t.done;
       t.name = name; t.channel = channel; t.taskStatus = taskStatus;
       t.due = due; t.hours = hours ? parseFloat(hours) : null;
       t.person = person; t.remarks = remarks;
       t.fixedDate = fixedDate || null;
       if (taskStatus === 'completed') t.done = true;
+      if (wasNotDone && t.done) { closeModal('modal-task'); save(); if (currentView === 'projects') { renderSidebar(); renderProjectView(); } else renderDashboard(); showCompletionCelebration(); return; }
     }
   } else {
     p.tasks.push({ id: uid(), name, channel, taskStatus, due, hours: hours ? parseFloat(hours) : null, person, remarks, fixedDate: fixedDate || null, done: taskStatus === 'completed' });
@@ -1645,10 +1679,67 @@ function deleteTaskFromModal() {
   save(); closeModal('modal-task');
   if (currentView === 'projects') { renderSidebar(); renderProjectView(); } else renderDashboard();
 }
+// ── CELEBRATION ──
+function launchConfetti() {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:9997;pointer-events:none;';
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  const colors = ['#f4ad35','#2db89a','#02323e','#9333ea','#ea580c','#2563eb','#db2777','#65a30d'];
+  const pieces = Array.from({length: 90}, () => ({
+    x: Math.random() * canvas.width, y: -10 - Math.random() * 40,
+    r: Math.random() * 7 + 3,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    vx: (Math.random() - 0.5) * 5, vy: Math.random() * 3 + 2,
+    rot: Math.random() * 360, rotSpeed: (Math.random() - 0.5) * 12,
+    shape: Math.random() > 0.5 ? 'rect' : 'circle',
+    opacity: 1
+  }));
+  let frame, start = Date.now();
+  const animate = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const elapsed = Date.now() - start;
+    let allGone = true;
+    pieces.forEach(p => {
+      if (p.y < canvas.height + 20) allGone = false;
+      p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.rot += p.rotSpeed;
+      if (elapsed > 2000) p.opacity = Math.max(0, p.opacity - 0.015);
+      ctx.save(); ctx.globalAlpha = p.opacity;
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      if (p.shape === 'rect') ctx.fillRect(-p.r, -p.r * 0.5, p.r * 2, p.r);
+      else { ctx.beginPath(); ctx.arc(0, 0, p.r, 0, Math.PI * 2); ctx.fill(); }
+      ctx.restore();
+    });
+    if (allGone || elapsed > 3500) { cancelAnimationFrame(frame); canvas.remove(); return; }
+    frame = requestAnimationFrame(animate);
+  };
+  frame = requestAnimationFrame(animate);
+}
+
+function showCompletionCelebration() {
+  launchConfetti();
+  const messages = ['🎉 Yay, keep going!', '✅ Crushed it!', '🚀 One down!', '⭐ Nice work, Pooja!', '💪 On a roll!'];
+  const msg = messages[Math.floor(Math.random() * messages.length)];
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;top:72px;left:50%;transform:translateX(-50%) scale(.9);background:#02323e;color:#fff;padding:11px 26px;border-radius:30px;font-size:.85rem;font-weight:700;z-index:9998;box-shadow:0 6px 24px rgba(2,50,62,.25);transition:transform .25s ease,opacity .25s ease;opacity:0;white-space:nowrap;font-family:DM Sans,sans-serif;';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => { toast.style.opacity = '1'; toast.style.transform = 'translateX(-50%) scale(1)'; });
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(-50%) scale(.9)'; setTimeout(() => toast.remove(), 280); }, 2400);
+}
+
 function toggleTask(pId, tId) { toggleTaskById(pId, tId); }
 function toggleTaskById(pId, tId) {
   const p = getProject(pId), t = p && p.tasks.find(x => x.id === tId);
-  if (t) { t.done = !t.done; if (t.done && t.taskStatus !== 'completed') t.taskStatus = 'completed'; else if (!t.done && t.taskStatus === 'completed') t.taskStatus = 'inprogress'; }
+  if (t) {
+    const wasNotDone = !t.done;
+    t.done = !t.done;
+    if (t.done && t.taskStatus !== 'completed') t.taskStatus = 'completed';
+    else if (!t.done && t.taskStatus === 'completed') t.taskStatus = 'inprogress';
+    if (wasNotDone && t.done) showCompletionCelebration();
+  }
   save();
   if (currentView === 'projects') { renderSidebar(); renderProjectView(); } else renderDashboard();
 }
