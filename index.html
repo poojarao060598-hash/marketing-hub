@@ -351,6 +351,22 @@ aside{border-right:1px solid var(--border);display:flex;flex-direction:column;pa
 .cal-day-col.drag-over-col{background:rgba(244,173,53,.06);}
 
 /* ── FIXED DATE TASK ── */
+/* ── JUICE VIEW ── */
+.juice-follower-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow);flex:1;min-width:0;transition:all .15s;}
+.juice-follower-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.juice-follower-card.own{background:linear-gradient(135deg,rgba(244,173,53,.09),rgba(45,184,154,.05));border:2px solid var(--accent);}
+.juice-num{font-size:2.1rem;font-weight:700;line-height:1;margin-bottom:4px;}
+.juice-growth-pos{color:var(--accent2);font-size:.68rem;font-weight:700;}
+.juice-growth-neg{color:var(--danger);font-size:.68rem;font-weight:700;}
+.juice-growth-neu{color:var(--muted);font-size:.68rem;}
+.juice-post-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:7px;display:flex;gap:12px;align-items:flex-start;transition:border-color .15s;}
+.juice-post-card:hover{border-color:rgba(0,119,181,.3);}
+.juice-trending-badge{font-size:.56rem;background:#fef3c7;color:#92400e;padding:2px 7px;border-radius:4px;font-weight:700;white-space:nowrap;}
+.juice-li-btn{font-size:.58rem;color:#0077b5;text-decoration:none;padding:3px 8px;border:1px solid #0077b5;border-radius:4px;font-weight:600;white-space:nowrap;display:inline-block;}
+.juice-li-btn:hover{background:#0077b5;color:#fff;}
+.juice-chart-wrap{overflow-x:auto;}
+.juice-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
 .fixed-date-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;background:rgba(232,96,76,.1);border:1px solid rgba(232,96,76,.3);border-radius:4px;font-size:.56rem;font-weight:700;color:var(--danger);text-transform:uppercase;letter-spacing:.4px;}
 .cal-event.fixed-event{border-left-width:4px;border-left-style:solid;}
 .cal-slot.overflow-slot{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(244,173,53,.06) 4px,rgba(244,173,53,.06) 8px);}
@@ -367,6 +383,7 @@ aside{border-right:1px solid var(--border);display:flex;flex-direction:column;pa
   <div class="header-nav">
     <button class="nav-btn active" id="nav-dashboard" onclick="showView('dashboard')">⬡ Dashboard</button>
     <button class="nav-btn" id="nav-projects" onclick="showView('projects')">◫ Projects</button>
+    <button class="nav-btn" id="nav-juice" onclick="showView('juice')">🍊 Juice</button>
   </div>
   <div class="header-stats">
     <div class="stat-pill"><span class="num" id="total-projects">0</span><span class="lbl">Projects</span></div>
@@ -495,8 +512,71 @@ aside{border-right:1px solid var(--border);display:flex;flex-direction:column;pa
   <style>@keyframes spin{to{transform:rotate(360deg);}}</style>
 </div>
 
+<!-- Juice: Update Followers Modal -->
+<div class="modal-overlay" id="modal-juice-followers" onclick="if(event.target===this)closeModal('modal-juice-followers')">
+  <div class="modal">
+    <h2>↻ Update Follower Counts</h2>
+    <div class="form-group"><label>Date</label><input type="date" id="juice-entry-date"/></div>
+    <div style="margin-bottom:6px;font-size:.58rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:600;">Follower counts (from LinkedIn Analytics)</div>
+    <div class="juice-modal-grid">
+      <div class="form-group"><label>⭐ RelyOn NL</label><input type="number" id="juice-relyon_nl" placeholder="e.g. 3240" min="0"/></div>
+      <div class="form-group"><label>FMTC B.V.</label><input type="number" id="juice-fmtc" placeholder="e.g. 1580" min="0"/></div>
+      <div class="form-group"><label>DHTC B.V.</label><input type="number" id="juice-dhtc" placeholder="e.g. 920" min="0"/></div>
+      <div class="form-group"><label>RelyOn UK</label><input type="number" id="juice-relyon_uk" placeholder="e.g. 740" min="0"/></div>
+    </div>
+    <div style="font-size:.62rem;color:var(--muted);padding:8px 10px;background:var(--surface);border-radius:6px;margin-bottom:14px;line-height:1.7;">
+      💡 Find follower counts on each company's LinkedIn page (visible publicly) or in your own LinkedIn Analytics dashboard.
+    </div>
+    <div class="modal-actions">
+      <div></div>
+      <div class="modal-actions-right">
+        <button class="btn-ghost" onclick="closeModal('modal-juice-followers')">Cancel</button>
+        <button class="btn-primary" onclick="saveJuiceEntry()">Save Entry</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Juice: Add Post Modal -->
+<div class="modal-overlay" id="modal-juice-post" onclick="if(event.target===this)closeModal('modal-juice-post')">
+  <div class="modal">
+    <h2 id="juice-post-modal-title">+ Log a Post</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Company</label>
+        <select id="juice-post-company">
+          <option value="relyon_nl">⭐ RelyOn NL</option>
+          <option value="fmtc">FMTC B.V.</option>
+          <option value="dhtc">DHTC B.V.</option>
+          <option value="relyon_uk">RelyOn UK</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Post Date</label><input type="date" id="juice-post-date"/></div>
+    </div>
+    <div class="form-group"><label>Post Title / Topic</label><input type="text" id="juice-post-title" placeholder="e.g. We're hiring! New offshore safety course launched…"/></div>
+    <div class="form-group"><label>LinkedIn URL (optional)</label><input type="text" id="juice-post-url" placeholder="https://www.linkedin.com/posts/…"/></div>
+    <div class="juice-modal-grid">
+      <div class="form-group"><label>👍 Likes</label><input type="number" id="juice-post-likes" placeholder="0" min="0" value="0"/></div>
+      <div class="form-group"><label>💬 Comments</label><input type="number" id="juice-post-comments" placeholder="0" min="0" value="0"/></div>
+      <div class="form-group"><label>🔁 Shares / Reposts</label><input type="number" id="juice-post-shares" placeholder="0" min="0" value="0"/></div>
+      <div class="form-group"><label>Mark as</label>
+        <select id="juice-post-trending">
+          <option value="0">Regular post</option>
+          <option value="1">🔥 Trending</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-danger-sm" id="juice-post-delete-btn" onclick="deleteJuicePostFromModal()" style="display:none">Delete</button>
+      <div class="modal-actions-right">
+        <button class="btn-ghost" onclick="closeModal('modal-juice-post')">Cancel</button>
+        <button class="btn-primary" onclick="saveJuicePost()">Save Post</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-// ── SUPABASE ──
 const _supa = supabase.createClient(
   'https://qinxbdgymbqesykegxxh.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFpbnhiZGd5bWJxZXN5a2VneHhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTkyMTgsImV4cCI6MjA5NTM5NTIxOH0.bTwod6U_6h2opjFaXldCWuC50bEpM7jponrDYbq3Qj4'
@@ -510,6 +590,9 @@ async function dbLoad() {
     document.getElementById('db-loading-msg').textContent = 'Loading timers…';
     const { data: tRow } = await _supa.from('timers').select('data').eq('id','main').maybeSingle();
     if (tRow) { taskTimerData = tRow.data || {}; }
+    document.getElementById('db-loading-msg').textContent = 'Loading Juice data…';
+    const { data: jRow } = await _supa.from('juice').select('data').eq('id','main').maybeSingle();
+    if (jRow) { juiceData = jRow.data || { entries:[], posts:[] }; }
   } catch(e) { console.error('DB load error', e); }
   document.getElementById('db-loading-overlay').style.display = 'none';
   updateHeaderStats();
@@ -531,6 +614,11 @@ async function saveOOO() {
   catch(e) { console.error('OOO save error', e); }
 }
 
+async function saveJuice() {
+  try { await _supa.from('juice').upsert({ id:'main', data: juiceData }); }
+  catch(e) { console.error('Juice save error', e); }
+}
+
 // ── STATE ──
 let projects = [];
 let activeProjectId = null, activeFilter = 'all', currentView = 'dashboard', dashSubView = 'today';
@@ -538,6 +626,7 @@ let editingProjectId = null, editingTaskId = null, editingTaskProjectId = null;
 let calWeekOffset = 0;
 let oooDatess = [];
 let calDragState = null; // { taskId, projectId, originalDay, originalHour }
+let juiceData = { entries: [], posts: [] }; // LinkedIn intelligence data
 
 // ── TIMER STATE ──
 let taskTimerData = {};
@@ -645,8 +734,10 @@ function showView(view) {
   currentView = view;
   document.getElementById('nav-dashboard').classList.toggle('active', view === 'dashboard');
   document.getElementById('nav-projects').classList.toggle('active', view === 'projects');
+  document.getElementById('nav-juice').classList.toggle('active', view === 'juice');
   const ab = document.getElementById('app-body'), sb = document.getElementById('sidebar');
   if (view === 'projects') { ab.classList.remove('no-sidebar'); sb.style.display = 'flex'; renderSidebar(); renderProjectView(); }
+  else if (view === 'juice') { ab.classList.add('no-sidebar'); sb.style.display = 'none'; renderJuiceView(); }
   else { ab.classList.add('no-sidebar'); sb.style.display = 'none'; renderDashboard(); }
 }
 
@@ -2124,6 +2215,314 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
 });
 document.getElementById('input-project-name').addEventListener('keydown', e => { if (e.key === 'Enter') saveProject(); });
 document.getElementById('input-task-name').addEventListener('keydown', e => { if (e.key === 'Enter') saveTask(); });
+
+// ── JUICE VIEW ──
+const JUICE_COMPANIES = [
+  { key:'relyon_nl', name:'RelyOn NL',  url:'https://www.linkedin.com/company/relyon-nl',    color:'#f4ad35', isOwn:true  },
+  { key:'fmtc',      name:'FMTC B.V.',  url:'https://www.linkedin.com/company/fmtc-b-v',     color:'#2563eb', isOwn:false },
+  { key:'dhtc',      name:'DHTC B.V.',  url:'https://www.linkedin.com/company/dhtc-b-v-/',   color:'#059669', isOwn:false },
+  { key:'relyon_uk', name:'RelyOn UK',  url:'https://www.linkedin.com/company/relyon-uk',    color:'#9333ea', isOwn:false }
+];
+
+function renderJuiceView() {
+  if (!juiceData) juiceData = { entries:[], posts:[] };
+  const entries = juiceData.entries || [];
+  const posts   = juiceData.posts   || [];
+  const latest  = entries.length ? entries[entries.length - 1] : null;
+  const prev    = entries.length > 1 ? entries[entries.length - 2] : null;
+  const content = document.getElementById('main-content');
+
+  // ── Follower cards ──
+  const cardsHTML = JUICE_COMPANIES.map(c => {
+    const cur  = latest ? (latest[c.key] || null) : null;
+    const prv  = prev   ? (prev[c.key]   || null) : null;
+    const diff = (cur !== null && prv !== null) ? cur - prv : null;
+    const pct  = (prv && diff !== null) ? ((diff / prv) * 100).toFixed(1) : null;
+    const growthHTML = diff === null
+      ? `<div class="juice-growth-neu" style="margin-top:8px;">No previous data</div>`
+      : diff > 0
+        ? `<div class="juice-growth-pos" style="margin-top:8px;">↑ +${diff.toLocaleString()}${pct ? ` (${pct}%)` : ''} vs prev</div>`
+        : diff < 0
+          ? `<div class="juice-growth-neg" style="margin-top:8px;">↓ ${diff.toLocaleString()}${pct ? ` (${pct}%)` : ''} vs prev</div>`
+          : `<div class="juice-growth-neu" style="margin-top:8px;">→ No change vs prev</div>`;
+    return `<div class="juice-follower-card ${c.isOwn ? 'own' : ''}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+        <div>
+          <div style="font-size:.55rem;text-transform:uppercase;letter-spacing:1.5px;color:${c.isOwn ? 'var(--accent)' : 'var(--muted)'};font-weight:700;margin-bottom:3px;">${c.isOwn ? '⭐ OUR COMPANY' : 'COMPETITOR'}</div>
+          <div style="font-size:.88rem;font-weight:700;color:var(--text);">${c.name}</div>
+        </div>
+        <a href="${c.url}" target="_blank" class="juice-li-btn">in ↗</a>
+      </div>
+      <div class="juice-num" style="color:${c.isOwn ? 'var(--accent)' : 'var(--text)'};">${cur !== null ? cur.toLocaleString() : '—'}</div>
+      <div style="font-size:.6rem;color:var(--muted);">followers</div>
+      ${growthHTML}
+    </div>`;
+  }).join('');
+
+  // ── SVG Growth Chart ──
+  const chartHTML = buildJuiceChart(entries);
+
+  // ── Posts this week ──
+  const now = new Date(), weekAgo = new Date(now);
+  weekAgo.setDate(now.getDate() - 7);
+  const weekAgoStr = localDateStr(weekAgo);
+  const recentPosts  = [...posts].filter(p => p.date >= weekAgoStr).sort((a,b) => b.date.localeCompare(a.date));
+  const trendingPost = [...posts].sort((a,b) => (b.likes+b.comments+b.shares) - (a.likes+a.comments+a.shares))[0] || null;
+
+  const postsHTML = recentPosts.length === 0
+    ? `<div style="text-align:center;padding:28px;color:var(--muted);font-size:.75rem;line-height:1.8;">No posts logged this week yet.<br>Click <strong>"+ Log Post"</strong> to track content from any company.</div>`
+    : recentPosts.map(post => {
+        const co = JUICE_COMPANIES.find(c => c.key === post.company) || { name: post.company, color:'#6a96a4' };
+        const eng = post.likes + post.comments + post.shares;
+        return `<div class="juice-post-card" style="border-left:3px solid ${co.color}">
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;flex-wrap:wrap;">
+              <span style="font-size:.6rem;font-weight:700;color:${co.color};text-transform:uppercase;letter-spacing:.5px;">${co.name}</span>
+              <span style="font-size:.57rem;color:var(--muted);">${formatDate(post.date)}</span>
+              ${post.isTrending ? '<span class="juice-trending-badge">🔥 Trending</span>' : ''}
+            </div>
+            <div style="font-size:.76rem;color:var(--text);font-weight:500;margin-bottom:7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escH(post.title)}</div>
+            <div style="display:flex;gap:12px;font-size:.63rem;color:var(--muted);">
+              <span>👍 ${post.likes.toLocaleString()}</span>
+              <span>💬 ${post.comments.toLocaleString()}</span>
+              <span>🔁 ${post.shares.toLocaleString()}</span>
+              <span style="color:var(--accent2);font-weight:700;">✦ ${eng.toLocaleString()}</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0;">
+            ${post.url ? `<a href="${escH(post.url)}" target="_blank" class="juice-li-btn">View ↗</a>` : ''}
+            <button onclick="openEditJuicePost('${post.id}')" style="font-size:.58rem;background:none;border:1px solid var(--border);border-radius:4px;padding:3px 8px;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;">✏️ Edit</button>
+          </div>
+        </div>`;
+      }).join('');
+
+  // ── Trending post card ──
+  const trendHTML = trendingPost ? (() => {
+    const co = JUICE_COMPANIES.find(c => c.key === trendingPost.company) || { name: trendingPost.company, color:'#6a96a4' };
+    const eng = trendingPost.likes + trendingPost.comments + trendingPost.shares;
+    return `<div style="background:linear-gradient(135deg,#fef9ec,#f0fdf9);border:1px solid rgba(244,173,53,.35);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:14px;">
+      <div style="font-size:.55rem;text-transform:uppercase;letter-spacing:2px;color:var(--accent);font-weight:700;margin-bottom:10px;">🔥 Top Performing Post</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:${co.color};flex-shrink:0;"></div>
+        <span style="font-size:.63rem;font-weight:700;color:${co.color};">${co.name}</span>
+        <span style="font-size:.57rem;color:var(--muted);">${formatDate(trendingPost.date)}</span>
+      </div>
+      <div style="font-size:.8rem;font-weight:600;color:var(--text);margin-bottom:10px;line-height:1.4;">${escH(trendingPost.title)}</div>
+      <div style="display:flex;gap:12px;font-size:.65rem;flex-wrap:wrap;">
+        <span style="color:var(--muted);">👍 ${trendingPost.likes.toLocaleString()}</span>
+        <span style="color:var(--muted);">💬 ${trendingPost.comments.toLocaleString()}</span>
+        <span style="color:var(--muted);">🔁 ${trendingPost.shares.toLocaleString()}</span>
+        <span style="font-weight:700;color:var(--accent2);">✦ ${eng.toLocaleString()} total</span>
+      </div>
+      ${trendingPost.url ? `<a href="${escH(trendingPost.url)}" target="_blank" class="juice-li-btn" style="display:inline-block;margin-top:10px;">View on LinkedIn ↗</a>` : ''}
+    </div>`;
+  })() : '';
+
+  const lastUpdated = latest ? `Last updated ${formatDate(latest.date)}` : 'No data yet — click "Update Followers" to add your first entry';
+
+  content.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;gap:10px;">
+      <div>
+        <h1 style="font-size:1.55rem;font-weight:700;color:var(--text);margin-bottom:3px;">🍊 Juice <span style="font-size:.78rem;font-weight:400;color:var(--muted);margin-left:8px;">LinkedIn Intelligence</span></h1>
+        <div style="font-size:.67rem;color:var(--muted);">${lastUpdated}</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-ghost" onclick="openJuicePostModal()">+ Log Post</button>
+        <button class="btn-primary" onclick="openJuiceUpdateModal()">↻ Update Followers</button>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">${cardsHTML}</div>
+
+    <div class="dash-card" style="margin-bottom:20px;">
+      <div class="dash-card-title"><div class="dot"></div>Follower Growth Over Time</div>
+      ${chartHTML}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start;">
+      <div class="dash-card">
+        <div class="dash-card-title"><div class="dot"></div>Posts This Week</div>
+        ${postsHTML}
+      </div>
+      <div>
+        ${trendHTML}
+        <div class="dash-card">
+          <div class="dash-card-title"><div class="dot"></div>Tracked Companies</div>
+          ${JUICE_COMPANIES.map(c => `
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:11px;">
+              <div style="width:9px;height:9px;border-radius:50%;background:${c.color};flex-shrink:0;"></div>
+              <div style="flex:1;font-size:.73rem;font-weight:${c.isOwn?'700':'500'};color:var(--text);">${c.name}${c.isOwn ? ' <span style="font-size:.52rem;color:var(--accent);font-weight:700;margin-left:3px;">OURS</span>' : ''}</div>
+              <a href="${c.url}" target="_blank" class="juice-li-btn">LinkedIn ↗</a>
+            </div>`).join('')}
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);font-size:.6rem;color:var(--muted2);line-height:1.75;">
+            💡 LinkedIn restricts automated data access. Update follower counts manually each week from each company's LinkedIn page or your own Analytics dashboard.
+          </div>
+        </div>
+        ${entries.length > 0 ? `<div class="dash-card" style="margin-top:14px;">
+          <div class="dash-card-title"><div class="dot"></div>Entry History</div>
+          <div style="max-height:180px;overflow-y:auto;">
+            ${[...entries].reverse().map(e => `
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border-light);font-size:.62rem;">
+                <span style="color:var(--muted);">${formatDate(e.date)}</span>
+                <span style="color:var(--accent);font-weight:700;">${e.relyon_nl ? e.relyon_nl.toLocaleString() : '—'}</span>
+                <button onclick="deleteJuiceEntry('${e.date}')" style="background:none;border:none;cursor:pointer;color:var(--muted2);font-size:.7rem;padding:0 3px;">✕</button>
+              </div>`).join('')}
+          </div>
+        </div>` : ''}
+      </div>
+    </div>`;
+}
+
+function buildJuiceChart(entries) {
+  if (entries.length < 2) return `<div style="text-align:center;padding:32px;color:var(--muted);font-size:.75rem;">Add at least 2 follower updates to see the growth chart here.</div>`;
+  const data = entries.slice(-16);
+  const n = data.length;
+  const W = 660, H = 190, PL = 54, PR = 16, PT = 12, PB = 30;
+  const cW = W - PL - PR, cH = H - PT - PB;
+  let allVals = [];
+  JUICE_COMPANIES.forEach(c => data.forEach(e => { if (e[c.key]) allVals.push(e[c.key]); }));
+  if (!allVals.length) return `<div style="text-align:center;padding:32px;color:var(--muted);font-size:.75rem;">No follower data to chart yet.</div>`;
+  const minV = Math.min(...allVals) * 0.97, maxV = Math.max(...allVals) * 1.02, rng = maxV - minV || 1;
+  const xP = i => PL + (i / (n - 1)) * cW;
+  const yP = v => PT + cH - ((v - minV) / rng) * cH;
+  const pad2 = n => String(n).padStart(2,'0');
+  let grid = '', lines = '', dots = '', xlabels = '';
+  for (let i = 0; i <= 4; i++) {
+    const y = PT + (i / 4) * cH;
+    const v = Math.round(maxV - (i / 4) * rng);
+    grid += `<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="#e9eff3" stroke-width="1"/>`;
+    grid += `<text x="${PL-5}" y="${y+4}" text-anchor="end" font-size="9" fill="#9bbac4">${v>=1000?(v/1000).toFixed(1)+'k':v}</text>`;
+  }
+  data.forEach((e, i) => {
+    if (i === 0 || i === n-1 || (n > 4 && i === Math.floor(n/2))) {
+      const [,m,d] = e.date.split('-');
+      xlabels += `<text x="${xP(i)}" y="${H-6}" text-anchor="middle" font-size="9" fill="#9bbac4">${d}/${m}</text>`;
+    }
+  });
+  JUICE_COMPANIES.forEach(c => {
+    const pts = data.map((e,i) => e[c.key] ? {x:xP(i),y:yP(e[c.key])} : null).filter(Boolean);
+    if (pts.length < 2) return;
+    const d = pts.map((p,i) => `${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+    lines += `<path d="${d}" fill="none" stroke="${c.color}" stroke-width="${c.isOwn?2.5:1.8}" stroke-linejoin="round" stroke-linecap="round" opacity="${c.isOwn?1:0.75}"/>`;
+    pts.forEach(p => { dots += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${c.isOwn?4:3}" fill="${c.color}" opacity="${c.isOwn?1:0.85}"/>`; });
+  });
+  const legendItems = JUICE_COMPANIES.map(c => {
+    const last = data[data.length-1];
+    const val = last && last[c.key] ? last[c.key].toLocaleString() : '—';
+    return `<div style="display:flex;align-items:center;gap:5px;font-size:.62rem;white-space:nowrap;">
+      <div style="width:18px;height:${c.isOwn?3:2}px;background:${c.color};border-radius:2px;flex-shrink:0;"></div>
+      <span style="color:var(--text);font-weight:${c.isOwn?700:400}">${c.name}</span>
+      <span style="color:var(--accent2);font-weight:600">${val}</span>
+    </div>`;
+  }).join('');
+  return `<div style="display:flex;gap:18px;align-items:flex-start;" class="juice-chart-wrap">
+    <svg viewBox="0 0 ${W} ${H}" style="flex:1;min-width:0;overflow:visible;">${grid}${lines}${dots}${xlabels}</svg>
+    <div style="display:flex;flex-direction:column;gap:10px;padding-top:12px;flex-shrink:0;">${legendItems}</div>
+  </div>`;
+}
+
+// ── Juice: Update Followers modal ──
+function openJuiceUpdateModal() {
+  const today = localDateStr(new Date());
+  document.getElementById('juice-entry-date').value = today;
+  const latest = juiceData.entries && juiceData.entries.length ? juiceData.entries[juiceData.entries.length-1] : null;
+  JUICE_COMPANIES.forEach(c => {
+    const el = document.getElementById(`juice-${c.key}`);
+    if (el) el.value = (latest && latest[c.key]) ? latest[c.key] : '';
+  });
+  openModal('modal-juice-followers');
+  setTimeout(() => document.getElementById('juice-relyon_nl').focus(), 100);
+}
+
+function saveJuiceEntry() {
+  const date = document.getElementById('juice-entry-date').value;
+  if (!date) return;
+  const entry = { date };
+  JUICE_COMPANIES.forEach(c => {
+    const v = document.getElementById(`juice-${c.key}`).value;
+    entry[c.key] = v ? parseInt(v) : null;
+  });
+  if (!juiceData.entries) juiceData.entries = [];
+  const idx = juiceData.entries.findIndex(e => e.date === date);
+  if (idx >= 0) juiceData.entries[idx] = entry;
+  else { juiceData.entries.push(entry); juiceData.entries.sort((a,b) => a.date.localeCompare(b.date)); }
+  saveJuice();
+  closeModal('modal-juice-followers');
+  renderJuiceView();
+}
+
+function deleteJuiceEntry(date) {
+  if (!confirm(`Delete entry for ${formatDate(date)}?`)) return;
+  juiceData.entries = (juiceData.entries||[]).filter(e => e.date !== date);
+  saveJuice(); renderJuiceView();
+}
+
+// ── Juice: Post modal ──
+let editingJuicePostId = null;
+
+function openJuicePostModal() {
+  editingJuicePostId = null;
+  document.getElementById('juice-post-modal-title').textContent = '+ Log a Post';
+  document.getElementById('juice-post-company').value = 'relyon_nl';
+  document.getElementById('juice-post-date').value = localDateStr(new Date());
+  document.getElementById('juice-post-title').value = '';
+  document.getElementById('juice-post-url').value = '';
+  document.getElementById('juice-post-likes').value = '0';
+  document.getElementById('juice-post-comments').value = '0';
+  document.getElementById('juice-post-shares').value = '0';
+  document.getElementById('juice-post-trending').value = '0';
+  document.getElementById('juice-post-delete-btn').style.display = 'none';
+  openModal('modal-juice-post');
+  setTimeout(() => document.getElementById('juice-post-title').focus(), 100);
+}
+
+function openEditJuicePost(id) {
+  const post = (juiceData.posts||[]).find(p => p.id === id);
+  if (!post) return;
+  editingJuicePostId = id;
+  document.getElementById('juice-post-modal-title').textContent = 'Edit Post';
+  document.getElementById('juice-post-company').value = post.company || 'relyon_nl';
+  document.getElementById('juice-post-date').value = post.date || '';
+  document.getElementById('juice-post-title').value = post.title || '';
+  document.getElementById('juice-post-url').value = post.url || '';
+  document.getElementById('juice-post-likes').value = post.likes || 0;
+  document.getElementById('juice-post-comments').value = post.comments || 0;
+  document.getElementById('juice-post-shares').value = post.shares || 0;
+  document.getElementById('juice-post-trending').value = post.isTrending ? '1' : '0';
+  document.getElementById('juice-post-delete-btn').style.display = 'block';
+  openModal('modal-juice-post');
+}
+
+function saveJuicePost() {
+  const title = document.getElementById('juice-post-title').value.trim();
+  if (!title) return;
+  const post = {
+    id: editingJuicePostId || uid(),
+    company: document.getElementById('juice-post-company').value,
+    date: document.getElementById('juice-post-date').value || localDateStr(new Date()),
+    title,
+    url: document.getElementById('juice-post-url').value.trim(),
+    likes: parseInt(document.getElementById('juice-post-likes').value) || 0,
+    comments: parseInt(document.getElementById('juice-post-comments').value) || 0,
+    shares: parseInt(document.getElementById('juice-post-shares').value) || 0,
+    isTrending: document.getElementById('juice-post-trending').value === '1'
+  };
+  if (!juiceData.posts) juiceData.posts = [];
+  if (editingJuicePostId) {
+    const idx = juiceData.posts.findIndex(p => p.id === editingJuicePostId);
+    if (idx >= 0) juiceData.posts[idx] = post;
+  } else {
+    juiceData.posts.push(post);
+  }
+  juiceData.posts.sort((a,b) => b.date.localeCompare(a.date));
+  saveJuice(); closeModal('modal-juice-post'); renderJuiceView();
+}
+
+function deleteJuicePostFromModal() {
+  if (!editingJuicePostId || !confirm('Delete this post?')) return;
+  juiceData.posts = (juiceData.posts||[]).filter(p => p.id !== editingJuicePostId);
+  saveJuice(); closeModal('modal-juice-post'); renderJuiceView();
+}
 
 // ── INIT ──
 dbLoad();
