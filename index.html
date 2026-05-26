@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marketing Task Hub — Pooja's Workspace</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+:root {
+  --bg:#ffffff;
+  --surface:#f4f7f9;
+  --surface2:#e9eff3;
+  --border:#d0dde3;
+  --border-light:#e8eef2;
+  --text:#02323e;
+  --muted:#6a96a4;
+  --muted2:#9bbac4;
+  --accent:#f4ad35;
+  --accent-bg:rgba(244,173,53,.1);
+  --accent2:#2db89a;
+  --accent2-bg:rgba(45,184,154,.1);
+  --danger:#e8604c;
+  --overdue:#e8604c;
+  --header-bg:#02323e;
+  --header-text:#f4f7f9;
+  --shadow:0 1px 4px rgba(2,50,62,.08);
+  --shadow-md:0 4px 16px rgba(2,50,62,.1);
+  --ch-design:#9333ea;
+  --ch-printing:#2563eb;
+  --ch-ads:#ea580c;
+  --ch-events:#059669;
+  --ch-admin:#db2777;
+  --ch-website:#0284c7;
+  --ch-newsletter:#65a30d;
+  --ch-socialmedia:#c026d3;
+  --ch-ppt:#d97706;
+  --st-inprogress:#f4ad35;
+  --st-inapproval:#0284c7;
+  --st-completed:#2db89a;
+  --st-onhold:#6a96a4;
+  --radius:8px;
+  --radius-lg:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',Helvetica,Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;font-size:14px;line-height:1.5;}
+
+/* ── HEADER ── */
+header{padding:0 28px;height:56px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;background:var(--header-bg);position:sticky;top:0;z-index:50;}
+.logo{font-size:1.2rem;font-weight:700;letter-spacing:-.5px;color:var(--header-text);font-family:'DM Sans',sans-serif;}
+.logo span{color:var(--accent);}
+.header-nav{display:flex;gap:3px;}
+.nav-btn{padding:6px 16px;border-radius:6px;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(244,247,249,.6);font-family:'DM Sans',sans-serif;font-size:.73rem;font-weight:500;cursor:pointer;transition:all .15s;letter-spacing:.2px;}
+.nav-btn:hover{border-color:rgba(255,255,255,.3);color:var(--header-text);}
+.nav-btn.active{background:var(--accent);color:var(--header-bg);border-color:var(--accent);font-weight:700;}
+.header-stats{display:flex;gap:24px;}
+.stat-pill{display:flex;flex-direction:column;align-items:flex-end;gap:1px;}
+.stat-pill .num{font-size:1.05rem;font-weight:700;color:var(--accent);line-height:1.1;}
+.stat-pill .lbl{font-size:.57rem;color:rgba(244,247,249,.45);text-transform:uppercase;letter-spacing:1.2px;}
+
+/* ── LAYOUT ── */
+.app-body{display:grid;grid-template-columns:256px 1fr;flex:1;min-height:0;height:calc(100vh - 56px);}
+.app-body.no-sidebar{grid-template-columns:1fr;}
+aside{border-right:1px solid var(--border);display:flex;flex-direction:column;padding:18px 0;overflow-y:auto;background:var(--surface);}
+.sidebar-section-title{font-size:.57rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);padding:0 16px 10px;font-weight:600;}
+.project-list{list-style:none;flex:1;}
+.project-item{padding:10px 14px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;display:flex;flex-direction:column;gap:5px;}
+.project-item:hover{background:var(--surface2);}
+.project-item.active{border-left-color:var(--accent);background:#fff;}
+.proj-name-row{font-size:.8rem;font-weight:600;color:var(--text);display:flex;justify-content:space-between;align-items:center;}
+.proj-name-row .pct{font-size:.63rem;color:var(--accent2);font-weight:500;}
+.proj-entity-tag{font-size:.57rem;color:var(--accent);font-weight:600;}
+.progress-bar-wrap{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:2px;transition:width .5s ease;}
+.task-count{font-size:.57rem;color:var(--muted);}
+.proj-completion{font-size:.57rem;color:var(--accent2);font-weight:500;}
+.btn-add-project{margin:12px 14px 0;padding:9px;background:transparent;border:1px dashed var(--border);border-radius:var(--radius);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.7rem;cursor:pointer;transition:all .15s;}
+.btn-add-project:hover{border-color:var(--accent);color:var(--accent);}
+.content{padding:26px 30px;overflow-y:auto;background:var(--bg);}
+
+/* ── BUTTONS ── */
+.btn-primary{padding:8px 18px;background:var(--accent);color:var(--header-bg);border:none;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:.73rem;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:.2px;}
+.btn-primary:hover{background:#f9be5a;box-shadow:0 2px 8px rgba(244,173,53,.35);}
+.btn-ghost{padding:8px 14px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.73rem;cursor:pointer;transition:all .15s;}
+.btn-ghost:hover{border-color:var(--text);color:var(--text);}
+.btn-danger-sm{padding:8px 14px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--danger);font-family:'DM Sans',sans-serif;font-size:.73rem;cursor:pointer;transition:all .15s;}
+.btn-danger-sm:hover{background:rgba(232,96,76,.08);border-color:var(--danger);}
+
+/* ── STATUS BADGES ── */
+.status-badge{padding:2px 9px;border-radius:20px;font-size:.57rem;font-weight:700;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap;}
+.status-badge.inprogress{background:rgba(244,173,53,.14);color:#b5780a;}
+.status-badge.inapproval{background:rgba(2,132,199,.12);color:var(--st-inapproval);}
+.status-badge.completed{background:rgba(45,184,154,.14);color:#1a8c72;}
+.status-badge.onhold{background:rgba(106,150,164,.14);color:var(--st-onhold);}
+
+/* ── CHANNEL BADGES ── */
+.channel-badge{padding:2px 8px;border-radius:4px;font-size:.56rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;}
+.channel-badge.design{background:rgba(147,51,234,.1);color:var(--ch-design);}
+.channel-badge.printing{background:rgba(37,99,235,.1);color:var(--ch-printing);}
+.channel-badge.ads{background:rgba(234,88,12,.1);color:var(--ch-ads);}
+.channel-badge.events{background:rgba(5,150,105,.1);color:var(--ch-events);}
+.channel-badge.admin{background:rgba(219,39,119,.1);color:var(--ch-admin);}
+.channel-badge.website{background:rgba(2,132,199,.1);color:var(--ch-website);}
+.channel-badge.newsletter{background:rgba(101,163,13,.1);color:var(--ch-newsletter);}
+.channel-badge.socialmedia{background:rgba(192,38,211,.1);color:var(--ch-socialmedia);}
+.channel-badge.ppt{background:rgba(217,119,6,.1);color:var(--ch-ppt);}
+
+/* ── DASHBOARD ── */
+.dash-welcome{margin-bottom:20px;}
+.dash-welcome h1{font-size:1.55rem;font-weight:700;color:var(--text);margin-bottom:2px;}
+.dash-welcome h1 span{color:var(--accent);}
+.dash-welcome .date-str{font-size:.7rem;color:var(--muted);}
+.sub-nav{display:flex;gap:4px;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:12px;}
+.sub-nav-btn{padding:6px 14px;border-radius:6px;border:1px solid transparent;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:500;cursor:pointer;transition:all .15s;}
+.sub-nav-btn:hover{color:var(--text);}
+.sub-nav-btn.active{background:var(--header-bg);border-color:var(--header-bg);color:#fff;font-weight:600;}
+.mini-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;}
+.mini-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;display:flex;flex-direction:column;gap:4px;box-shadow:var(--shadow);cursor:pointer;transition:all .15s;}
+.mini-stat:hover{box-shadow:var(--shadow-md);border-color:var(--accent);transform:translateY(-1px);}
+.mini-stat .n{font-size:1.5rem;font-weight:700;color:var(--text);line-height:1;}
+.mini-stat .l{font-size:.57rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;font-weight:600;}
+.dash-grid{display:grid;grid-template-columns:1fr 296px;gap:18px;align-items:start;}
+.dash-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow);}
+.dash-card-title{font-size:.57rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:7px;font-weight:600;}
+.dash-card-title .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+.tip-card{background:linear-gradient(135deg,rgba(244,173,53,.08),rgba(45,184,154,.06));border:1px solid rgba(244,173,53,.25);border-radius:var(--radius-lg);padding:18px 20px;margin-bottom:14px;box-shadow:var(--shadow);}
+.tip-label{font-size:.57rem;text-transform:uppercase;letter-spacing:2px;color:var(--accent);margin-bottom:8px;font-weight:700;}
+.tip-text{font-size:.78rem;color:var(--text);line-height:1.75;font-style:italic;}
+.tip-source{font-size:.58rem;color:var(--muted);margin-top:7px;}
+.today-task-item{padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:6px;display:grid;grid-template-columns:18px 1fr auto;gap:10px;align-items:center;transition:all .15s;cursor:pointer;animation:slideIn .2s ease;background:#fff;}
+.today-task-item:hover{background:var(--surface);border-color:var(--accent);}
+.today-task-item.done{opacity:.4;}
+.today-task-item.overdue-row{border-left:3px solid var(--overdue);}
+.today-task-info{display:flex;flex-direction:column;gap:3px;min-width:0;}
+.today-task-name{font-size:.76rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;}
+.today-task-name.done-text{text-decoration:line-through;color:var(--muted);}
+.today-task-meta{font-size:.58rem;color:var(--muted);display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
+.proj-tag{color:var(--accent);font-weight:600;}
+.overdue-label{font-size:.58rem;color:var(--overdue);font-weight:700;}
+.due-today-label{font-size:.58rem;color:var(--accent);font-weight:700;}
+.due-soon-label{font-size:.58rem;color:var(--accent2);font-weight:600;}
+.no-tasks-today{text-align:center;padding:28px;color:var(--muted);font-size:.76rem;line-height:1.8;}
+
+/* ── TASK TIMER ── */
+.today-task-wrap{margin-bottom:6px;animation:slideIn .2s ease;}
+.today-task-wrap .today-task-item{margin-bottom:0;}
+.task-timer-btn{padding:3px 9px;background:transparent;border:1px solid var(--border);border-radius:5px;color:var(--muted);font-size:.58rem;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:'DM Mono',monospace;font-weight:500;flex-shrink:0;}
+.task-timer-btn:hover{border-color:var(--accent2);color:var(--accent2);background:var(--accent2-bg);}
+.task-timer-btn.running{border-color:var(--accent2);color:var(--accent2);background:var(--accent2-bg);animation:timerPulse 1.5s ease-in-out infinite;}
+.task-timer-btn.has-time{border-color:var(--accent);color:var(--accent);}
+@keyframes timerPulse{0%,100%{opacity:1;}50%{opacity:.6;}}
+.timer-panel{background:linear-gradient(135deg,var(--surface),#fff);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:12px 16px;display:none;flex-direction:column;gap:10px;}
+.timer-panel.open{display:flex;}
+.timer-display-row{display:flex;align-items:center;justify-content:center;gap:10px;}
+.timer-display{font-family:'DM Mono',monospace;font-size:1.6rem;font-weight:500;color:var(--text);letter-spacing:3px;text-align:center;min-width:110px;}
+.timer-display.running{color:var(--accent2);}
+.timer-status-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .3s;}
+.timer-status-dot.running{background:var(--accent2);animation:timerPulse .9s ease-in-out infinite;}
+.timer-btns{display:flex;gap:7px;justify-content:center;align-items:center;flex-wrap:wrap;}
+.timer-start{padding:6px 18px;background:var(--accent2);color:#fff;border:none;border-radius:var(--radius);font-size:.68rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;letter-spacing:.2px;}
+.timer-start:hover{background:#26a689;box-shadow:0 2px 8px rgba(45,184,154,.3);}
+.timer-pause{padding:6px 18px;background:var(--accent);color:var(--header-bg);border:none;border-radius:var(--radius);font-size:.68rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;letter-spacing:.2px;}
+.timer-pause:hover{background:#f9be5a;}
+.timer-end{padding:6px 18px;background:transparent;border:1px solid var(--danger);color:var(--danger);border-radius:var(--radius);font-size:.68rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.timer-end:hover{background:rgba(232,96,76,.08);}
+.timer-reset-btn{padding:4px 10px;background:transparent;border:1px solid var(--border);color:var(--muted2);border-radius:5px;font-size:.58rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.timer-reset-btn:hover{border-color:var(--danger);color:var(--danger);}
+.timer-info-row{display:flex;justify-content:space-between;align-items:center;font-size:.6rem;color:var(--muted);}
+.timer-logged{font-size:.6rem;color:var(--muted);}
+.timer-total-badge{padding:2px 9px;background:var(--accent2-bg);color:var(--accent2);border-radius:20px;font-size:.6rem;font-weight:700;font-family:'DM Mono',monospace;}
+
+/* ── KANBAN ── */
+.kanban-scroll{overflow-x:auto;padding-bottom:10px;}
+.kanban-board{display:flex;gap:12px;min-width:max-content;align-items:flex-start;}
+.kanban-col{width:210px;flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);display:flex;flex-direction:column;overflow:hidden;}
+.kanban-col-header{padding:11px 13px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;}
+.kanban-col-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.kanban-col-title{font-size:.7rem;font-weight:700;color:var(--text);}
+.kanban-col-count{font-size:.57rem;color:var(--muted);margin-left:auto;background:var(--bg);padding:2px 7px;border-radius:10px;border:1px solid var(--border);}
+.kanban-tasks{padding:8px;display:flex;flex-direction:column;gap:5px;max-height:58vh;overflow-y:auto;}
+.kanban-task{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:9px 10px;cursor:pointer;transition:all .15s;animation:slideIn .2s ease;}
+.kanban-task:hover{border-color:var(--accent);box-shadow:var(--shadow);}
+.kanban-task.done-task{opacity:.35;}
+.kanban-task-name{font-size:.73rem;color:var(--text);margin-bottom:5px;line-height:1.35;font-weight:500;}
+.kanban-task-name.done-text{text-decoration:line-through;color:var(--muted);}
+.kanban-task-meta{display:flex;flex-direction:column;gap:3px;}
+.kanban-due{font-size:.6rem;color:var(--muted);}
+.kanban-due.overdue{color:var(--overdue);font-weight:700;}
+.kanban-due.today{color:var(--accent);font-weight:700;}
+.kanban-due.soon{color:var(--accent2);font-weight:600;}
+.kanban-proj{font-size:.57rem;color:var(--accent);font-weight:600;}
+.kanban-person{font-size:.57rem;color:var(--muted);}
+.kanban-empty{padding:16px 9px;text-align:center;color:var(--muted2);font-size:.66rem;}
+
+/* ── CALENDAR ── */
+.cal-wrap{overflow-x:auto;}
+.cal-header-row{display:flex;}
+.cal-time-gutter{width:52px;flex-shrink:0;}
+.cal-day-header{flex:1;text-align:center;padding:8px 4px;background:var(--surface);border:1px solid var(--border);font-size:.68rem;font-weight:700;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:2px;}
+.cal-day-header.today-col{background:var(--accent-bg);border-color:rgba(244,173,53,.4);}
+.cal-day-header .day-name{color:var(--muted);font-size:.58rem;text-transform:uppercase;letter-spacing:.8px;}
+.cal-day-header .day-num{font-size:1rem;font-weight:700;color:var(--text);}
+.cal-day-header.today-col .day-num{color:var(--accent);}
+.cal-body{display:flex;}
+.cal-time-col{width:52px;flex-shrink:0;display:flex;flex-direction:column;}
+.cal-time-slot{height:46px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:.57rem;color:var(--muted);border-top:1px solid var(--border-light);flex-shrink:0;font-family:'DM Mono',monospace;}
+.cal-time-slot:first-child{border-top:none;}
+.cal-day-col{flex:1;display:flex;flex-direction:column;border-left:1px solid var(--border);position:relative;min-width:0;}
+.cal-day-col:last-child{border-right:1px solid var(--border);}
+.cal-slot{height:46px;border-top:1px solid var(--border-light);position:relative;flex-shrink:0;}
+.cal-slot.lunch-slot{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(208,221,227,.3) 4px,rgba(208,221,227,.3) 8px);}
+.cal-slot.lunch-slot::after{content:'Lunch';position:absolute;left:50%;transform:translateX(-50%);top:50%;margin-top:-7px;font-size:.56rem;color:var(--muted2);pointer-events:none;font-weight:500;}
+.cal-event{position:absolute;left:2px;right:2px;border-radius:5px;padding:3px 6px;font-size:.59rem;cursor:pointer;transition:all .15s;z-index:2;overflow:hidden;line-height:1.3;border-left:3px solid rgba(0,0,0,.2);}
+.cal-event:hover{filter:brightness(.93);transform:scale(1.01);z-index:3;}
+.cal-event-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cal-event-sub{opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.55rem;}
+.cal-event-hrs{opacity:.8;font-size:.54rem;margin-top:1px;}
+.cal-event-chunk{font-size:.52rem;opacity:.7;font-style:italic;}
+.cal-legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+.cal-legend-item{display:flex;align-items:center;gap:5px;font-size:.62rem;color:var(--muted);}
+.cal-legend-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0;}
+.cal-no-tasks{text-align:center;padding:40px;color:var(--muted);font-size:.78rem;line-height:1.8;background:var(--surface);border-radius:var(--radius-lg);border:1px dashed var(--border);}
+.cal-week-nav{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.cal-week-nav button{padding:5px 13px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.7rem;cursor:pointer;transition:all .15s;}
+.cal-week-nav button:hover{border-color:var(--header-bg);color:var(--header-bg);}
+.cal-week-label{font-size:.78rem;color:var(--text);font-weight:600;flex:1;text-align:center;}
+.cal-session-label{font-size:.6rem;color:var(--muted);padding:3px 8px;background:var(--surface);border-bottom:1px solid var(--border-light);font-weight:600;text-transform:uppercase;letter-spacing:.8px;}
+
+/* ── PROJECT VIEW ── */
+.project-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+.project-title-block h1{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:7px;}
+.proj-entity-badge{display:inline-block;padding:2px 9px;border-radius:4px;background:var(--accent-bg);color:var(--accent);font-size:.6rem;font-weight:700;letter-spacing:.5px;margin-bottom:6px;}
+.big-progress{display:flex;align-items:center;gap:11px;margin-bottom:4px;}
+.big-progress .pct-num{font-size:.9rem;color:var(--accent2);font-weight:700;min-width:40px;}
+.big-progress-bar{width:160px;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.big-progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:3px;transition:width .6s ease;}
+.tasks-summary{font-size:.64rem;color:var(--muted);}
+.project-complete-date{font-size:.64rem;color:var(--accent);margin-top:4px;}
+.filter-bar{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap;}
+.filter-chip{padding:4px 11px;border-radius:20px;border:1px solid var(--border);font-size:.6rem;cursor:pointer;transition:all .15s;color:var(--muted);font-family:'DM Sans',sans-serif;background:#fff;}
+.filter-chip:hover{border-color:var(--text);color:var(--text);}
+.filter-chip.active{color:#fff;border-color:transparent;font-weight:700;}
+.filter-chip[data-ch="all"].active{background:var(--header-bg);}
+.filter-chip[data-ch="design"].active{background:var(--ch-design);}
+.filter-chip[data-ch="printing"].active{background:var(--ch-printing);}
+.filter-chip[data-ch="ads"].active{background:var(--ch-ads);}
+.filter-chip[data-ch="events"].active{background:var(--ch-events);}
+.filter-chip[data-ch="admin"].active{background:var(--ch-admin);}
+.filter-chip[data-ch="website"].active{background:var(--ch-website);}
+.filter-chip[data-ch="newsletter"].active{background:var(--ch-newsletter);}
+.filter-chip[data-ch="socialmedia"].active{background:var(--ch-socialmedia);}
+.filter-chip[data-ch="ppt"].active{background:var(--ch-ppt);}
+.tasks-grid{display:flex;flex-direction:column;gap:6px;}
+.task-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;display:grid;grid-template-columns:20px 1fr auto auto auto;align-items:center;gap:10px;transition:all .15s;animation:slideIn .2s ease;cursor:pointer;box-shadow:var(--shadow);}
+.task-card:hover{border-color:var(--accent);box-shadow:var(--shadow-md);}
+.task-card.done{opacity:.45;}
+.task-card.done .task-name{text-decoration:line-through;color:var(--muted);}
+.task-card.overdue-card{border-left:3px solid var(--overdue);}
+@keyframes slideIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+.task-checkbox{width:16px;height:16px;border:2px solid var(--border);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.task-checkbox:hover{border-color:var(--accent2);}
+.task-checkbox.checked{background:var(--accent2);border-color:var(--accent2);}
+.task-checkbox.checked::after{content:'✓';font-size:10px;color:#fff;font-weight:bold;}
+.task-main{display:flex;flex-direction:column;gap:3px;min-width:0;}
+.task-name{font-size:.76rem;color:var(--text);font-weight:500;}
+.task-sub{font-size:.58rem;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;}
+.task-sub .person{color:var(--accent2);font-weight:500;}
+.task-sub .due.overdue{color:var(--overdue);font-weight:700;}
+.task-sub .due.today{color:var(--accent);font-weight:700;}
+.task-sub .remarks{max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-style:italic;}
+.task-delete{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:.95rem;padding:2px 5px;border-radius:4px;transition:all .15s;line-height:1;}
+.task-delete:hover{color:var(--danger);background:rgba(232,96,76,.08);}
+.empty-state{text-align:center;padding:40px 18px;color:var(--muted);font-size:.76rem;line-height:2;background:var(--surface);border-radius:var(--radius-lg);border:1px dashed var(--border);}
+.empty-state .icon{font-size:1.9rem;margin-bottom:8px;opacity:.4;display:block;}
+.no-project{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--muted);text-align:center;gap:10px;}
+.no-project .big-icon{font-size:2.8rem;opacity:.2;}
+
+/* ── MODALS ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(2,30,38,.6);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:26px 28px;width:520px;animation:popIn .2s ease;max-height:92vh;overflow-y:auto;box-shadow:var(--shadow-md);}
+@keyframes popIn{from{opacity:0;transform:scale(.94);}to{opacity:1;transform:scale(1);}}
+.modal h2{font-size:1.05rem;font-weight:700;margin-bottom:18px;color:var(--text);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-group{margin-bottom:14px;display:flex;flex-direction:column;gap:5px;}
+.form-group label{font-size:.58rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:600;}
+.form-group input,.form-group select,.form-group textarea{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:8px 11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.76rem;outline:none;transition:border-color .15s;}
+.form-group textarea{resize:vertical;min-height:58px;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);}
+.form-group select option{background:#fff;color:var(--text);}
+.form-group input[type="date"]::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.5;}
+.hours-hint{font-size:.6rem;color:var(--muted);margin-top:2px;}
+.modal-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:18px;}
+.modal-actions-right{display:flex;gap:7px;}
+.delete-project-btn{background:none;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.63rem;cursor:pointer;padding:5px 11px;transition:all .15s;}
+.delete-project-btn:hover{border-color:var(--danger);color:var(--danger);}
+
+/* ── CALENDAR SCHEDULE INFO ── */
+.cal-info-bar{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap;}
+.cal-info-pill{padding:5px 12px;border-radius:20px;font-size:.62rem;font-weight:600;display:flex;align-items:center;gap:5px;}
+.cal-info-pill.morning{background:rgba(244,173,53,.12);color:#b5780a;border:1px solid rgba(244,173,53,.25);}
+.cal-info-pill.afternoon{background:rgba(45,184,154,.12);color:#1a8c72;border:1px solid rgba(45,184,154,.25);}
+
+/* ── STAT MODAL ── */
+.stat-modal-overlay{display:none;position:fixed;inset:0;background:rgba(2,30,38,.55);z-index:200;align-items:flex-start;justify-content:center;backdrop-filter:blur(4px);padding-top:60px;}
+.stat-modal-overlay.open{display:flex;}
+.stat-modal{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);width:700px;max-width:96vw;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(2,50,62,.18);animation:popIn .2s ease;}
+.stat-modal-header{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.stat-modal-header h2{font-size:1rem;font-weight:700;color:var(--text);}
+.stat-modal-close{background:none;border:none;cursor:pointer;color:var(--muted);font-size:1.2rem;line-height:1;padding:4px 8px;border-radius:4px;transition:all .15s;}
+.stat-modal-close:hover{background:var(--surface);color:var(--text);}
+.stat-modal-body{padding:16px 22px;overflow-y:auto;flex:1;}
+.stat-modal-proj-section{margin-bottom:18px;}
+.stat-modal-proj-name{font-size:.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border-light);}
+.stat-modal-empty{text-align:center;padding:36px;color:var(--muted);font-size:.76rem;}
+
+/* ── PDF BUTTON ── */
+.btn-pdf{padding:7px 14px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.7rem;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;letter-spacing:.2px;}
+.btn-pdf:hover{border-color:#e8604c;color:#e8604c;background:rgba(232,96,76,.05);}
+.btn-pdf-primary{padding:8px 16px;background:rgba(2,50,62,.06);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
+.btn-pdf-primary:hover{background:rgba(2,50,62,.12);border-color:var(--text);}
+.dash-actions-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* ── OOO / OUT OF OFFICE ── */
+.ooo-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:14px;}
+.ooo-panel-title{font-size:.57rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.ooo-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.ooo-chip{display:flex;align-items:center;gap:5px;padding:3px 10px;background:#fff;border:1px solid rgba(232,96,76,.35);border-radius:20px;font-size:.62rem;color:var(--danger);font-weight:600;}
+.ooo-chip button{background:none;border:none;color:var(--danger);cursor:pointer;font-size:.9rem;line-height:1;padding:0 0 0 3px;opacity:.6;transition:opacity .15s;}
+.ooo-chip button:hover{opacity:1;}
+.ooo-add-row{display:flex;gap:7px;align-items:center;}
+.ooo-add-row input{flex:1;padding:5px 9px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:.72rem;color:var(--text);outline:none;transition:border-color .15s;}
+.ooo-add-row input:focus{border-color:var(--danger);}
+.ooo-add-btn{padding:5px 12px;background:rgba(232,96,76,.08);border:1px solid rgba(232,96,76,.3);border-radius:var(--radius);color:var(--danger);font-family:'DM Sans',sans-serif;font-size:.7rem;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.ooo-add-btn:hover{background:rgba(232,96,76,.15);}
+.cal-day-header.ooo-col{background:rgba(232,96,76,.06);border-color:rgba(232,96,76,.25);}
+.cal-day-header.ooo-col .day-num{color:var(--danger);}
+.cal-day-col.ooo-day{background:repeating-linear-gradient(45deg,transparent,transparent 6px,rgba(232,96,76,.04) 6px,rgba(232,96,76,.04) 12px);}
+.ooo-day-banner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.6rem;color:rgba(232,96,76,.55);font-weight:700;text-transform:uppercase;letter-spacing:1px;white-space:nowrap;pointer-events:none;writing-mode:vertical-rl;text-orientation:mixed;}
+
+/* ── DRAGGABLE CALENDAR ── */
+.cal-event{cursor:grab;}
+.cal-event:active{cursor:grabbing;}
+.cal-event.dragging{opacity:.5;cursor:grabbing;}
+.cal-drop-target{background:rgba(244,173,53,.12);transition:background .1s;}
+.cal-slot.drag-over{background:rgba(244,173,53,.2);border-top:2px solid var(--accent);}
+.cal-day-col.drag-over-col{background:rgba(244,173,53,.06);}
+
+/* ── FIXED DATE TASK ── */
+.fixed-date-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;background:rgba(232,96,76,.1);border:1px solid rgba(232,96,76,.3);border-radius:4px;font-size:.56rem;font-weight:700;color:var(--danger);text-transform:uppercase;letter-spacing:.4px;}
+.cal-event.fixed-event{border-left-width:4px;border-left-style:solid;}
+.cal-slot.overflow-slot{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(244,173,53,.06) 4px,rgba(244,173,53,.06) 8px);}
+.cal-slot.overflow-slot::after{content:'Overflow';position:absolute;left:50%;transform:translateX(-50%);top:50%;margin-top:-7px;font-size:.52rem;color:var(--muted2);pointer-events:none;font-weight:500;}
+.cal-event.overflow-event{border-style:dashed;}
+.fixed-pin{font-size:.65rem;}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<header>
+  <div class="logo">Marketing <span>Task Hub</span></div>
+  <div class="header-nav">
+    <button class="nav-btn active" id="nav-dashboard" onclick="showView('dashboard')">⬡ Dashboard</button>
+    <button class="nav-btn" id="nav-projects" onclick="showView('projects')">◫ Projects</button>
+  </div>
+  <div class="header-stats">
+    <div class="stat-pill"><span class="num" id="total-projects">0</span><span class="lbl">Projects</span></div>
+    <div class="stat-pill"><span class="num" id="total-tasks">0</span><span class="lbl">Tasks</span></div>
+    <div class="stat-pill"><span class="num" id="done-tasks">0</span><span class="lbl">Done</span></div>
+  </div>
+</header>
+<div class="app-body" id="app-body">
+  <aside id="sidebar">
+    <div class="sidebar-section-title">Projects</div>
+    <ul class="project-list" id="project-list"></ul>
+    <button class="btn-add-project" onclick="openAddProject()">+ New Project</button>
+  </aside>
+  <div class="content" id="main-content"></div>
+</div>
+
+<!-- Project Modal -->
+<div class="modal-overlay" id="modal-project">
+  <div class="modal">
+    <h2 id="modal-project-title">New Project</h2>
+    <div class="form-group"><label>Project Name</label><input type="text" id="input-project-name" placeholder="e.g. Summer Campaign 2025"/></div>
+    <div class="form-group">
+      <label>Entity</label>
+      <select id="input-project-entity">
+        <option value="">— Select Entity —</option>
+        <option value="OMR">OMR</option>
+        <option value="Quercus">Quercus</option>
+        <option value="Germany">Germany</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <div></div>
+      <div class="modal-actions-right">
+        <button class="btn-ghost" onclick="closeModal('modal-project')">Cancel</button>
+        <button class="btn-primary" onclick="saveProject()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Task Modal -->
+<div class="modal-overlay" id="modal-task">
+  <div class="modal">
+    <h2 id="modal-task-title">Add Task</h2>
+    <div class="form-group"><label>Task Name</label><input type="text" id="input-task-name" placeholder="e.g. Design Instagram banners"/></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Marketing Channel</label>
+        <select id="input-task-channel" onchange="updateChannelHint()">
+          <option value="design">🎨 Design</option>
+          <option value="printing">🖨️ Printing</option>
+          <option value="ads">📣 Ads</option>
+          <option value="events">🎪 Events</option>
+          <option value="admin">🗂️ Admin</option>
+          <option value="website">🌐 Website</option>
+          <option value="newsletter">📧 Newsletter</option>
+          <option value="socialmedia">📱 Social Media</option>
+          <option value="ppt">📊 PPT</option>
+        </select>
+        <div class="hours-hint" id="channel-hint">☀️ Scheduled in the morning (9am–12pm)</div>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="input-task-status">
+          <option value="inprogress">🔄 In Progress</option>
+          <option value="inapproval">🔍 In Approval</option>
+          <option value="completed">✅ Completed</option>
+          <option value="onhold">⏸ On Hold</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Due Date</label>
+        <input type="date" id="input-task-due"/>
+      </div>
+      <div class="form-group">
+        <label>Time Needed (hours)</label>
+        <input type="number" id="input-task-hours" placeholder="e.g. 2.5" min="0.5" max="40" step="0.5"/>
+        <div class="hours-hint">Used to schedule task blocks on the calendar</div>
+        <div id="task-modal-timer-info" style="display:none;margin-top:6px;padding:8px 10px;background:var(--accent2-bg);border:1px solid rgba(45,184,154,.25);border-radius:6px;flex-direction:column;gap:3px;">
+          <div style="font-size:.57rem;text-transform:uppercase;letter-spacing:1.4px;color:var(--accent2);font-weight:700;">⏱ Time Tracked</div>
+          <div style="display:flex;align-items:baseline;gap:6px;">
+            <span id="task-modal-timer-hours" style="font-family:'DM Mono',monospace;font-size:1rem;font-weight:600;color:var(--text);"></span>
+            <span id="task-modal-timer-hms" style="font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);"></span>
+          </div>
+          <div id="task-modal-timer-sessions" style="font-size:.58rem;color:var(--muted);"></div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group"><label>Person Responsible</label><input type="text" id="input-task-person" placeholder="e.g. Pooja, Raj, Team..."/></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>📌 Must-Do On Date <span style="font-size:.55rem;font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">(task locked to this day only)</span></label>
+        <input type="date" id="input-task-fixed-date"/>
+        <div class="hours-hint" style="color:var(--danger)">Task will only appear on this exact date in the calendar</div>
+      </div>
+    </div>
+    <div class="form-group"><label>Remarks</label><textarea id="input-task-remarks" placeholder="Any notes or context..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-danger-sm" id="btn-delete-task-modal" onclick="deleteTaskFromModal()" style="display:none">Delete Task</button>
+      <div class="modal-actions-right">
+        <button class="btn-ghost" onclick="closeModal('modal-task')">Cancel</button>
+        <button class="btn-primary" onclick="saveTask()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stat Detail Modal -->
+<div class="stat-modal-overlay" id="stat-modal" onclick="if(event.target===this)closeStatModal()">
+  <div class="stat-modal">
+    <div class="stat-modal-header">
+      <h2 id="stat-modal-title"></h2>
+      <button class="stat-modal-close" onclick="closeStatModal()">×</button>
+    </div>
+    <div class="stat-modal-body" id="stat-modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+let projects = JSON.parse(localStorage.getItem('tf_projects') || '[]');
+let activeProjectId = null, activeFilter = 'all', currentView = 'dashboard', dashSubView = 'today';
+let editingProjectId = null, editingTaskId = null, editingTaskProjectId = null;
+let calWeekOffset = 0;
+let oooDatess = JSON.parse(localStorage.getItem('tf_ooo') || '[]'); // Out-of-office dates array of 'YYYY-MM-DD'
+let calDragState = null; // { taskId, projectId, originalDay, originalHour }
+
+// ── TIMER STATE ──
+let taskTimerData = JSON.parse(localStorage.getItem('tf_timers') || '{}');
+// Structure: { taskKey: { accumulatedMs: number, sessions: [{start, end}] } }
+let activeTimers = {};
+// Structure: { taskKey: { intervalId, startedAt } }
+
+const CHANNELS = {
+  design:      { icon: '🎨', label: 'Design' },
+  printing:    { icon: '🖨️', label: 'Printing' },
+  ads:         { icon: '📣', label: 'Ads' },
+  events:      { icon: '🎪', label: 'Events' },
+  admin:       { icon: '🗂️', label: 'Admin' },
+  website:     { icon: '🌐', label: 'Website' },
+  newsletter:  { icon: '📧', label: 'Newsletter' },
+  socialmedia: { icon: '📱', label: 'Social Media' },
+  ppt:         { icon: '📊', label: 'PPT' }
+};
+
+const CH_COLORS = {
+  design: '#9333ea', printing: '#2563eb', ads: '#ea580c', events: '#059669',
+  admin: '#db2777', website: '#0284c7', newsletter: '#65a30d',
+  socialmedia: '#c026d3', ppt: '#d97706'
+};
+
+// Text colours that work on each channel bg (all light-ish bg via opacity)
+const CH_TEXT = {
+  design: '#9333ea', printing: '#2563eb', ads: '#ea580c', events: '#059669',
+  admin: '#db2777', website: '#0284c7', newsletter: '#65a30d',
+  socialmedia: '#c026d3', ppt: '#d97706'
+};
+
+const STATUS_LABELS = {
+  inprogress: '🔄 In Progress', inapproval: '🔍 In Approval',
+  completed: '✅ Completed', onhold: '⏸ On Hold'
+};
+
+// ── SCHEDULING RULES ──
+// CREATIVE → MORNING (9:00–12:00) = 3 h/day
+// PRINT    → AFTERNOON (13:00–18:00) = 5 h/day
+const CREATIVE_CHANNELS = new Set(['design', 'ads', 'events', 'website', 'socialmedia', 'newsletter', 'ppt']);
+const PRINT_CHANNELS    = new Set(['printing', 'admin']);
+const MORNING_START = 9, MORNING_END = 12;   // 3 h
+const AFTERNOON_START = 13, AFTERNOON_END = 18; // 5 h
+
+const TIPS = [
+  { tip: "Content that educates before it sells builds lasting trust. Aim to give 80% value, 20% promotion.", source: "Content Marketing Institute" },
+  { tip: "Email subject lines with the recipient's name get 26% higher open rates. Personalisation is a conversion driver.", source: "Campaign Monitor" },
+  { tip: "Video content generates 1200% more shares than text and images. Even short clips repurposed from assets dramatically increase reach.", source: "Wordstream" },
+  { tip: "The best time to post on LinkedIn is Tuesday–Thursday, 8–10 AM. Consistency matters far more than perfection.", source: "HubSpot Research" },
+  { tip: "A/B test your CTAs every quarter. Changing 'Submit' to 'Get My Free Guide' can lift conversions by 90%.", source: "Unbounce" },
+  { tip: "Brands that blog 16+ times per month get 3.5× more traffic than those publishing 0–4 posts.", source: "HubSpot" },
+  { tip: "User-generated content is trusted 2.4× more than brand-created content. Encourage reviews and reposts.", source: "Nielsen" },
+  { tip: "Retargeting ads convert 70% better than regular display ads. Don't let warm traffic leave without a second touchpoint.", source: "CMO.com" },
+  { tip: "Newsletters with a single clear CTA see 371% more clicks than those with multiple competing links.", source: "WordStream" },
+  { tip: "Events generate pipeline 3× faster because they create urgency and direct conversation.", source: "Forrester" },
+  { tip: "Social proof near your CTA can increase conversions by 34%. Add a stat or testimonial right where the decision happens.", source: "VWO" },
+  { tip: "Print marketing recall is 70% higher than digital ads. In an all-digital world, a mailer genuinely stands out.", source: "Canada Post" },
+  { tip: "The average landing page conversion rate is 2.35%, but the top 25% convert at 5.31%+. Small copy tweaks create outsized results.", source: "Wordstream" },
+  { tip: "Stories on Instagram have a 15–25% swipe-up rate with strong CTAs. Use them to drive traffic to landing pages.", source: "Hootsuite" },
+  { tip: "Google Ads quality score impacts CPC. A QS of 10 can reduce cost-per-click by 50% vs a score of 4.", source: "Google Ads" }
+];
+
+// ── UTILS ──
+function save() { localStorage.setItem('tf_projects', JSON.stringify(projects)); }
+function getProject(id) { return projects.find(p => p.id === id); }
+function calcPct(p) { if (!p.tasks.length) return 0; return Math.round(p.tasks.filter(t => t.done).length / p.tasks.length * 100); }
+function localDateStr(d) { const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
+function todayStr() { return localDateStr(new Date()); }
+function formatDate(d) { if (!d) return ''; const [y, m, day] = d.split('-'); return `${day}/${m}/${y}`; }
+function dateStatus(due) {
+  if (!due) return 'none';
+  const t = todayStr();
+  if (due < t) return 'overdue';
+  if (due === t) return 'today';
+  if ((new Date(due) - new Date(t)) / 86400000 <= 3) return 'soon';
+  return 'ok';
+}
+function getProjectCompletionDate(p) { const dates = p.tasks.map(t => t.due).filter(Boolean); if (!dates.length) return null; return dates.sort().reverse()[0]; }
+function escH(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+function updateHeaderStats() {
+  document.getElementById('total-projects').textContent = projects.length;
+  const all = projects.flatMap(p => p.tasks);
+  document.getElementById('total-tasks').textContent = all.length;
+  document.getElementById('done-tasks').textContent = all.filter(t => t.done).length;
+}
+function isWeekday(d) { const dow = d.getDay(); return dow >= 1 && dow <= 5; }
+
+// Channel hint in modal
+function updateChannelHint() {
+  const ch = document.getElementById('input-task-channel').value;
+  const hint = document.getElementById('channel-hint');
+  if (!hint) return;
+  if (CREATIVE_CHANNELS.has(ch)) {
+    hint.textContent = '☀️ Scheduled in the morning (9am–12pm)';
+    hint.style.color = '#b5780a';
+  } else {
+    hint.textContent = '🌤 Scheduled in the afternoon (1pm–6pm)';
+    hint.style.color = '#1a8c72';
+  }
+}
+
+// ── VIEWS ──
+function showView(view) {
+  currentView = view;
+  document.getElementById('nav-dashboard').classList.toggle('active', view === 'dashboard');
+  document.getElementById('nav-projects').classList.toggle('active', view === 'projects');
+  const ab = document.getElementById('app-body'), sb = document.getElementById('sidebar');
+  if (view === 'projects') { ab.classList.remove('no-sidebar'); sb.style.display = 'flex'; renderSidebar(); renderProjectView(); }
+  else { ab.classList.add('no-sidebar'); sb.style.display = 'none'; renderDashboard(); }
+}
+
+// ── SIDEBAR ──
+function renderSidebar() {
+  const list = document.getElementById('project-list'); list.innerHTML = '';
+  projects.forEach(p => {
+    const pct = calcPct(p), done = p.tasks.filter(t => t.done).length;
+    const cd = getProjectCompletionDate(p);
+    const li = document.createElement('li');
+    li.className = 'project-item' + (p.id === activeProjectId ? ' active' : '');
+    li.onclick = () => selectProject(p.id);
+    li.innerHTML = `<div class="proj-name-row"><span>${escH(p.name)}</span><span class="pct">${pct}%</span></div>
+      ${p.entity ? `<div class="proj-entity-tag">${escH(p.entity)}</div>` : ''}
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+      <div class="task-count">${done}/${p.tasks.length} done</div>
+      ${cd ? `<div class="proj-completion">📅 Est. ${formatDate(cd)}</div>` : ''}`;
+    list.appendChild(li);
+  });
+  updateHeaderStats();
+}
+function selectProject(id) { activeProjectId = id; activeFilter = 'all'; renderSidebar(); renderProjectView(); }
+
+// ── DASHBOARD ──
+function renderDashboard() {
+  const content = document.getElementById('main-content');
+  const now = new Date();
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const dateStr = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  const all = projects.flatMap(p => p.tasks);
+  const totalDone = all.filter(t => t.done).length;
+  const overdueCount = all.filter(t => !t.done && dateStatus(t.due) === 'overdue').length;
+  const dueTodayCount = all.filter(t => !t.done && dateStatus(t.due) === 'today').length;
+  const todayHours = all.filter(t => !t.done && (dateStatus(t.due) === 'today' || dateStatus(t.due) === 'overdue') && t.hours).reduce((sum, t) => sum + parseFloat(t.hours), 0);
+  const todayHoursDisplay = todayHours % 1 === 0 ? todayHours : todayHours.toFixed(1);
+  const hoursColor = todayHours > 8 ? 'var(--overdue)' : todayHours > 6 ? 'var(--accent)' : 'var(--accent2)';
+  const doy = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+  const tip = TIPS[doy % TIPS.length];
+  content.innerHTML = `
+    <div class="dash-welcome"><h1>Good day, <span>Pooja</span> 👋</h1><div class="date-str">${dateStr}</div></div>
+    <div class="mini-stats">
+      <div class="mini-stat"><span class="n">${projects.length}</span><span class="l">Active Projects</span></div>
+      <div class="mini-stat" onclick="openStatModal('completed')"><span class="n" style="color:var(--accent2)">${totalDone}</span><span class="l">Completed ↗</span></div>
+      <div class="mini-stat" onclick="openStatModal('overdue')" style="${overdueCount > 0 ? 'border-color:rgba(232,96,76,.3)' : ''}">
+        <span class="n" style="color:${overdueCount > 0 ? 'var(--overdue)' : 'var(--text)'}">${overdueCount}</span><span class="l">Overdue ↗</span></div>
+      <div class="mini-stat"><span class="n" style="color:var(--accent)">${dueTodayCount}</span><span class="l">Due Today</span></div>
+      <div class="mini-stat" title="Total hours across all tasks due today or overdue">
+        <span class="n" style="color:${hoursColor}">${todayHoursDisplay}<span style="font-size:.75rem;font-weight:500">h</span></span>
+        <span class="l">Task Hours Today</span>
+      </div>
+    </div>
+    <div class="dash-actions-row">
+      <div class="sub-nav" style="margin-bottom:0;border-bottom:none;padding-bottom:0;">
+        <button class="sub-nav-btn ${dashSubView === 'today' ? 'active' : ''}" onclick="switchDashSub('today')">📋 Today's Tasks</button>
+        <button class="sub-nav-btn ${dashSubView === 'kanban' ? 'active' : ''}" onclick="switchDashSub('kanban')">🎯 Marketing Channels</button>
+        <button class="sub-nav-btn ${dashSubView === 'calendar' ? 'active' : ''}" onclick="switchDashSub('calendar')">📅 Weekly Calendar</button>
+      </div>
+      <button class="btn-pdf-primary" onclick="downloadWeeklyReport()">⬇ Weekly Completed Report</button>
+    </div>
+    <div style="border-bottom:1px solid var(--border);margin-bottom:18px;"></div>
+    <div id="dash-sub-content"></div>`;
+  renderDashSubView(tip);
+}
+function switchDashSub(sub) {
+  dashSubView = sub;
+  const now = new Date();
+  const doy = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+  const tip = TIPS[doy % TIPS.length];
+  document.querySelectorAll('.sub-nav-btn').forEach(b => {
+    const match = b.getAttribute('onclick')?.includes(`'${sub}'`);
+    b.classList.toggle('active', !!match);
+  });
+  renderDashSubView(tip);
+}
+function renderDashSubView(tip) {
+  const el = document.getElementById('dash-sub-content'); if (!el) return;
+  if (dashSubView === 'today') el.innerHTML = renderTodayHTML(tip);
+  else if (dashSubView === 'kanban') el.innerHTML = renderKanbanHTML();
+  else el.innerHTML = renderCalendarHTML();
+}
+
+// ── TIMER FUNCTIONS ──
+function getTimerKey(projectId, taskId) { return `${projectId}__${taskId}`; }
+
+function getTimerData(key) {
+  return taskTimerData[key] || { accumulatedMs: 0, sessions: [] };
+}
+
+function saveTimerData() {
+  localStorage.setItem('tf_timers', JSON.stringify(taskTimerData));
+}
+
+function fmtTimerMs(ms) {
+  const totalSec = Math.floor(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function fmtTimerHours(ms) {
+  if (ms < 60000) return '< 1 min';
+  const h = ms / 3600000;
+  if (h < 0.1) {
+    const m = Math.round(ms / 60000);
+    return `${m} min`;
+  }
+  return `${h.toFixed(2)}h`;
+}
+
+function getCurrentTimerMs(key) {
+  const data = getTimerData(key);
+  let ms = data.accumulatedMs;
+  if (activeTimers[key]) ms += Date.now() - activeTimers[key].startedAt;
+  return ms;
+}
+
+function toggleTimerPanel(projectId, taskId, event) {
+  event.stopPropagation();
+  const key = getTimerKey(projectId, taskId);
+  const panel = document.getElementById(`timer-panel-${key}`);
+  if (!panel) return;
+  const isOpen = panel.classList.contains('open');
+  // Close all other open panels
+  document.querySelectorAll('.timer-panel.open').forEach(p => {
+    if (p.id !== `timer-panel-${key}`) p.classList.remove('open');
+  });
+  panel.classList.toggle('open', !isOpen);
+  if (!isOpen) updateTimerUI(key);
+}
+
+function startTimer(projectId, taskId, event) {
+  event.stopPropagation();
+  const key = getTimerKey(projectId, taskId);
+  if (activeTimers[key]) return;
+  activeTimers[key] = {
+    startedAt: Date.now(),
+    intervalId: setInterval(() => tickTimer(key), 1000)
+  };
+  if (!taskTimerData[key]) taskTimerData[key] = { accumulatedMs: 0, sessions: [] };
+  taskTimerData[key].sessions = taskTimerData[key].sessions || [];
+  taskTimerData[key]._sessionStart = Date.now();
+  updateTimerUI(key);
+}
+
+function pauseTimer(projectId, taskId, event) {
+  event.stopPropagation();
+  const key = getTimerKey(projectId, taskId);
+  if (!activeTimers[key]) return;
+  const elapsed = Date.now() - activeTimers[key].startedAt;
+  clearInterval(activeTimers[key].intervalId);
+  delete activeTimers[key];
+  if (!taskTimerData[key]) taskTimerData[key] = { accumulatedMs: 0, sessions: [] };
+  taskTimerData[key].accumulatedMs += elapsed;
+  taskTimerData[key].sessions = taskTimerData[key].sessions || [];
+  taskTimerData[key].sessions.push({ start: taskTimerData[key]._sessionStart, end: Date.now(), ms: elapsed });
+  saveTimerData();
+  updateTimerUI(key);
+}
+
+function endTimer(projectId, taskId, event) {
+  event.stopPropagation();
+  const key = getTimerKey(projectId, taskId);
+  // Stop if running
+  if (activeTimers[key]) {
+    const elapsed = Date.now() - activeTimers[key].startedAt;
+    clearInterval(activeTimers[key].intervalId);
+    delete activeTimers[key];
+    if (!taskTimerData[key]) taskTimerData[key] = { accumulatedMs: 0, sessions: [] };
+    taskTimerData[key].accumulatedMs += elapsed;
+    taskTimerData[key].sessions = taskTimerData[key].sessions || [];
+    taskTimerData[key].sessions.push({ start: taskTimerData[key]._sessionStart, end: Date.now(), ms: elapsed });
+  }
+  if (!taskTimerData[key]) taskTimerData[key] = { accumulatedMs: 0, sessions: [] };
+  taskTimerData[key].ended = true;
+  saveTimerData();
+  updateTimerUI(key);
+}
+
+function resetTimer(projectId, taskId, event) {
+  event.stopPropagation();
+  const key = getTimerKey(projectId, taskId);
+  if (activeTimers[key]) {
+    clearInterval(activeTimers[key].intervalId);
+    delete activeTimers[key];
+  }
+  delete taskTimerData[key];
+  saveTimerData();
+  updateTimerUI(key);
+  // Update the outer timer button
+  const timerBtn = document.getElementById(`timer-btn-${key}`);
+  if (timerBtn) { timerBtn.className = 'task-timer-btn'; timerBtn.textContent = '⏱ Timer'; }
+}
+
+function tickTimer(key) {
+  // Update display every second
+  const display = document.getElementById(`timer-display-${key}`);
+  if (!display) {
+    // DOM was re-rendered; stop the interval
+    if (activeTimers[key]) { clearInterval(activeTimers[key].intervalId); delete activeTimers[key]; }
+    return;
+  }
+  const ms = getCurrentTimerMs(key);
+  display.textContent = fmtTimerMs(ms);
+  // Also update the outer timer button live
+  const timerBtn = document.getElementById(`timer-btn-${key}`);
+  if (timerBtn) { timerBtn.textContent = fmtTimerMs(ms); timerBtn.className = 'task-timer-btn running'; }
+}
+
+function updateTimerUI(key) {
+  const panel = document.getElementById(`timer-panel-${key}`);
+  if (!panel) return;
+  const data = getTimerData(key);
+  const isRunning = !!activeTimers[key];
+  const isEnded = data.ended && !isRunning;
+  const ms = getCurrentTimerMs(key);
+
+  // Display
+  const display = document.getElementById(`timer-display-${key}`);
+  if (display) { display.textContent = fmtTimerMs(ms); display.classList.toggle('running', isRunning); }
+
+  // Status dot
+  const dot = document.getElementById(`timer-dot-${key}`);
+  if (dot) dot.classList.toggle('running', isRunning);
+
+  // Start / Pause buttons
+  const startBtn = document.getElementById(`timer-start-${key}`);
+  const pauseBtn = document.getElementById(`timer-pause-${key}`);
+  if (startBtn) startBtn.style.display = isRunning ? 'none' : '';
+  if (pauseBtn) pauseBtn.style.display = isRunning ? '' : 'none';
+
+  // Info row
+  const loggedEl = document.getElementById(`timer-logged-${key}`);
+  if (loggedEl) {
+    const sessions = data.sessions || [];
+    if (isRunning) {
+      loggedEl.textContent = `⏱ Running · ${sessions.length > 0 ? sessions.length + ' prev session' + (sessions.length>1?'s':'') + ' · ' : ''}pauses OK`;
+    } else if (isEnded) {
+      loggedEl.textContent = `✅ Session ended`;
+    } else if (ms > 0) {
+      loggedEl.textContent = `Paused · ${sessions.length} session${sessions.length!==1?'s':''}`;
+    } else {
+      loggedEl.textContent = 'Not started yet';
+    }
+  }
+
+  // Total badge
+  const totalBadge = document.getElementById(`timer-total-${key}`);
+  if (totalBadge) {
+    if (ms > 0) { totalBadge.style.display = ''; totalBadge.textContent = fmtTimerHours(ms); }
+    else { totalBadge.style.display = 'none'; }
+  }
+
+  // Outer timer button
+  const timerBtn = document.getElementById(`timer-btn-${key}`);
+  if (timerBtn) {
+    if (isRunning) { timerBtn.className = 'task-timer-btn running'; timerBtn.textContent = fmtTimerMs(ms); }
+    else if (ms > 0) { timerBtn.className = 'task-timer-btn has-time'; timerBtn.textContent = `⏱ ${fmtTimerHours(ms)}`; }
+    else { timerBtn.className = 'task-timer-btn'; timerBtn.textContent = '⏱ Timer'; }
+  }
+}
+
+// ── TODAY VIEW ──
+function renderTodayHTML(tip) {
+  const pending = [];
+  projects.forEach(p => p.tasks.forEach(t => {
+    const s = dateStatus(t.due);
+    if (s === 'overdue' || s === 'today' || s === 'soon') pending.push({ ...t, projectName: p.name, projectId: p.id, status: s });
+  }));
+  const ord = { overdue: 0, today: 1, soon: 2 };
+  // Active tasks sorted by urgency, then completed tasks go to the bottom
+  const active = pending.filter(t => !t.done).sort((a, b) => ord[a.status] - ord[b.status]);
+  const done = pending.filter(t => t.done).sort((a, b) => ord[a.status] - ord[b.status]);
+  const sorted = [...active, ...done];
+  // separator between active and done
+  const sepIdx = active.length;
+  const taskItems = sorted.map((t, i) => {
+    const ch = CHANNELS[t.channel] || { icon: '📌', label: t.channel };
+    const badge = t.status === 'overdue' ? `<span class="overdue-label">⚠ OVERDUE</span>` : t.status === 'today' ? `<span class="due-today-label">Due Today</span>` : `<span class="due-soon-label">Due soon</span>`;
+    const stKey = t.taskStatus || 'inprogress';
+    const sep = (i === sepIdx && done.length > 0 && active.length > 0) ? `<div style="text-align:center;font-size:.58rem;color:var(--muted2);padding:6px 0;letter-spacing:.8px;text-transform:uppercase;font-weight:600">✓ Completed</div>` : '';
+    const key = getTimerKey(t.projectId, t.id);
+    const timerMs = getCurrentTimerMs(key);
+    const isTimerRunning = !!activeTimers[key];
+    const hasTimerData = timerMs > 0;
+    let timerBtnClass = 'task-timer-btn';
+    let timerBtnText = '⏱ Timer';
+    if (isTimerRunning) { timerBtnClass += ' running'; timerBtnText = fmtTimerMs(timerMs); }
+    else if (hasTimerData) { timerBtnClass += ' has-time'; timerBtnText = `⏱ ${fmtTimerHours(timerMs)}`; }
+    const timerPanel = t.done ? '' : `
+      <div id="timer-panel-${key}" class="timer-panel">
+        <div class="timer-display-row">
+          <div class="timer-status-dot ${isTimerRunning ? 'running' : ''}" id="timer-dot-${key}"></div>
+          <div class="timer-display ${isTimerRunning ? 'running' : ''}" id="timer-display-${key}">${fmtTimerMs(timerMs)}</div>
+          <div class="timer-total-badge" id="timer-total-${key}" style="${hasTimerData ? '' : 'display:none'}">${fmtTimerHours(timerMs)}</div>
+        </div>
+        <div class="timer-btns">
+          <button id="timer-start-${key}" class="timer-start" onclick="startTimer('${t.projectId}','${t.id}',event)" style="${isTimerRunning ? 'display:none' : ''}">▶ Start</button>
+          <button id="timer-pause-${key}" class="timer-pause" onclick="pauseTimer('${t.projectId}','${t.id}',event)" style="${isTimerRunning ? '' : 'display:none'}">⏸ Pause</button>
+          <button class="timer-end" onclick="endTimer('${t.projectId}','${t.id}',event)">⏹ End</button>
+        </div>
+        <div class="timer-info-row">
+          <span class="timer-logged" id="timer-logged-${key}">${isTimerRunning ? '⏱ Running...' : hasTimerData ? `Paused · ${(getTimerData(key).sessions||[]).length} session(s)` : 'Not started yet'}</span>
+          <button class="timer-reset-btn" onclick="resetTimer('${t.projectId}','${t.id}',event)">🗑 Reset</button>
+        </div>
+      </div>`;
+    return sep + `<div class="today-task-wrap">
+      <div class="today-task-item ${t.done ? 'done' : ''} ${t.status === 'overdue' && !t.done ? 'overdue-row' : ''}" style="margin-bottom:0;border-radius:${t.done ? 'var(--radius)' : 'var(--radius) var(--radius) 0 0'}" onclick="openEditTaskById('${t.projectId}','${t.id}')">
+        <div class="task-checkbox ${t.done ? 'checked' : ''}" onclick="event.stopPropagation();toggleTaskById('${t.projectId}','${t.id}')"></div>
+        <div class="today-task-info">
+          <div class="today-task-name ${t.done ? 'done-text' : ''}">${escH(t.name)}</div>
+          <div class="today-task-meta">
+            <span class="proj-tag">◆ ${escH(t.projectName)}</span>
+            ${t.person ? `<span>👤 ${escH(t.person)}</span>` : ''}
+            <span class="channel-badge ${t.channel}">${ch.icon} ${ch.label}</span>
+            <span class="status-badge ${stKey}">${STATUS_LABELS[stKey]}</span>
+            ${t.due ? `<span>📅 ${formatDate(t.due)}</span>` : ''}
+            ${t.hours ? `<span>⏱ ${t.hours}h est.</span>` : ''}
+            ${t.fixedDate ? `<span class="fixed-date-badge">📌 Fixed</span>` : ''}
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+          ${badge}
+          ${!t.done ? `<button id="timer-btn-${key}" class="${timerBtnClass}" onclick="toggleTimerPanel('${t.projectId}','${t.id}',event)">${timerBtnText}</button>` : ''}
+        </div>
+      </div>
+      ${timerPanel}
+    </div>`;
+  }).join('');
+  const finalHTML = sorted.length === 0 ? `<div class="no-tasks-today">🎉 No urgent tasks right now. You're all caught up!</div>` : taskItems;
+  return `<div class="dash-grid">
+    <div class="dash-card"><div class="dash-card-title"><div class="dot"></div>Tasks needing attention</div>${finalHTML}</div>
+    <div>
+      <div class="tip-card"><div class="tip-label">💡 Marketing tip of the day</div><div class="tip-text">"${escH(tip.tip)}"</div><div class="tip-source">— ${escH(tip.source)}</div></div>
+      <div class="dash-card"><div class="dash-card-title"><div class="dot"></div>Projects overview</div>
+        ${projects.length === 0 ? '<div style="color:var(--muted);font-size:.73rem;padding:8px 0">No projects yet.</div>' : projects.map(p => {
+          const pct = calcPct(p), cd = getProjectCompletionDate(p);
+          return `<div style="margin-bottom:13px;cursor:pointer" onclick="goToProject('${p.id}')">
+            <div style="display:flex;justify-content:space-between;font-size:.74rem;margin-bottom:4px">
+              <span style="font-weight:500">${escH(p.name)}${p.entity ? ` <span style="color:var(--accent);font-size:.58rem;font-weight:600">[${escH(p.entity)}]</span>` : ''}</span>
+              <span style="color:var(--accent2);font-weight:600">${pct}%</span></div>
+            <div class="progress-bar-wrap" style="height:4px"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+            ${cd ? `<div style="font-size:.58rem;color:var(--muted);margin-top:3px">Est. completion: ${formatDate(cd)}</div>` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── KANBAN VIEW ──
+function renderKanbanHTML() {
+  const allTasks = [];
+  projects.forEach(p => p.tasks.forEach(t => allTasks.push({ ...t, projectName: p.name, projectId: p.id })));
+  const colsHTML = Object.entries(CHANNELS).map(([chKey, chMeta]) => {
+    let tasks = allTasks.filter(t => t.channel === chKey);
+    tasks.sort((a, b) => {
+      if (!a.due && !b.due) return 0; if (!a.due) return 1; if (!b.due) return -1;
+      return a.due < b.due ? -1 : 1;
+    });
+    const sorted = [...tasks.filter(t => !t.done), ...tasks.filter(t => t.done)];
+    const tasksHTML = sorted.length === 0 ? `<div class="kanban-empty">No tasks</div>` : sorted.map(t => {
+      const ds = dateStatus(t.due);
+      const dueClass = ds === 'overdue' ? 'overdue' : ds === 'today' ? 'today' : ds === 'soon' ? 'soon' : '';
+      const dueLabel = t.due ? (ds === 'overdue' ? `⚠ ${formatDate(t.due)}` : ds === 'today' ? 'Today' : `📅 ${formatDate(t.due)}`) : 'No due date';
+      const stKey = t.taskStatus || 'inprogress';
+      return `<div class="kanban-task ${t.done ? 'done-task' : ''}" onclick="openEditTaskById('${t.projectId}','${t.id}')">
+        <div class="kanban-task-name ${t.done ? 'done-text' : ''}">${escH(t.name)}</div>
+        <div class="kanban-task-meta">
+          <div class="kanban-due ${dueClass}">${dueLabel}</div>
+          ${t.hours ? `<div style="font-size:.58rem;color:var(--muted)">⏱ ${t.hours}h total</div>` : ''}
+          <div class="kanban-proj">◆ ${escH(t.projectName)}</div>
+          ${t.person ? `<div class="kanban-person">👤 ${escH(t.person)}</div>` : ''}
+          <div><span class="status-badge ${stKey}" style="font-size:.54rem">${STATUS_LABELS[stKey]}</span></div>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="kanban-col">
+      <div class="kanban-col-header"><div class="kanban-col-dot" style="background:${CH_COLORS[chKey]}"></div><div class="kanban-col-title">${chMeta.icon} ${chMeta.label}</div><div class="kanban-col-count">${sorted.length}</div></div>
+      <div class="kanban-tasks">${tasksHTML}</div>
+    </div>`;
+  }).join('');
+  return `<div class="kanban-scroll"><div class="kanban-board">${colsHTML}</div></div>`;
+}
+
+// ── CALENDAR VIEW ──
+// Work hours: Mon–Fri, 9–18. Lunch 12–13. No slots on Sat/Sun.
+// Creative channels → morning only (9–12 = 3 h/day)
+// Print channels    → afternoon only (13–18 = 5 h/day)
+// Long tasks (> one session) are CHUNKED across days, working back from due date.
+
+function getWeekDates(offset) {
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((dayOfWeek + 6) % 7) + offset * 7);
+  monday.setHours(0, 0, 0, 0);
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    days.push(d);
+  }
+  return days;
+}
+
+function dateToStr(d) { return localDateStr(d); }
+
+function addWorkDays(dateStr, n) {
+  // returns an array of n workday date strings starting from (and including) dateStr if it's a workday, else next workday
+  const result = [];
+  const d = new Date(dateStr);
+  let count = 0;
+  while (count < n) {
+    if (isWeekday(d)) { result.push(d.toISOString().slice(0, 10)); count++; }
+    d.setDate(d.getDate() + 1);
+  }
+  return result;
+}
+
+function buildCalendarSchedule(weekDates) {
+  const OVERFLOW_END = 19; // max 7 pm
+  const workDates = weekDates.filter(d => isWeekday(d));
+  const workDateStrs = workDates.map(dateToStr);
+  const availDateStrs = workDateStrs.filter(s => !oooDatess.includes(s));
+
+  // Per day, track a cursor for morning and afternoon independently.
+  // morningCursor / afternoonCursor = next free hour in that session.
+  // Overflow from afternoon spills into 18–19 (overflowCursor).
+  const schedule = {};
+  workDateStrs.forEach(s => {
+    schedule[s] = {
+      morningCursor: MORNING_START,   // 9
+      afternoonCursor: AFTERNOON_START, // 13
+      overflowCursor: AFTERNOON_END,   // 18
+      events: [],
+      isOOO: oooDatess.includes(s)
+    };
+  });
+
+  const allTasks = [];
+  projects.forEach(p => p.tasks.forEach(t => {
+    if (t.done || !t.hours) return;
+    allTasks.push({ ...t, projectName: p.name, projectId: p.id });
+  }));
+  allTasks.sort((a, b) => {
+    if (!a.due && !b.due) return 0;
+    if (!a.due) return 1;
+    if (!b.due) return -1;
+    return a.due < b.due ? -1 : 1;
+  });
+
+  // Place a chunk of a task on a given day, no-overlap, using overflow if needed.
+  // Returns hours actually placed.
+  function placeOnDay(slot, task, hoursNeeded, isCreative, totalHours, hoursAlreadyPlaced) {
+    if (slot.isOOO) return 0;
+
+    let startHour, avail;
+    if (isCreative) {
+      // Morning: 9–12 only, no overflow for creative
+      avail = MORNING_END - slot.morningCursor;
+      if (avail <= 0) return 0;
+      startHour = slot.morningCursor;
+      const chunk = Math.min(hoursNeeded, avail);
+      slot.morningCursor += chunk;
+      const isPartial = totalHours > (MORNING_END - MORNING_START);
+      slot.events.push({ ...task, scheduledDay: dateToStr, startHour, durationHrs: chunk, isCreative, totalHours, isPartial, chunkHoursPlaced: hoursAlreadyPlaced, colOffset: 0, colCount: 1 });
+      return chunk;
+    } else {
+      // Afternoon: 13–18 then overflow 18–19
+      const afternoonAvail = AFTERNOON_END - slot.afternoonCursor;
+      const overflowAvail = OVERFLOW_END - slot.overflowCursor;
+      const totalAvail = afternoonAvail + overflowAvail;
+      if (totalAvail <= 0) return 0;
+
+      const chunk = Math.min(hoursNeeded, totalAvail);
+      startHour = slot.afternoonCursor;
+
+      if (afternoonAvail >= chunk) {
+        // fits entirely in normal afternoon
+        slot.afternoonCursor += chunk;
+      } else {
+        // spills into overflow
+        slot.afternoonCursor = AFTERNOON_END;
+        const spillover = chunk - afternoonAvail;
+        slot.overflowCursor += spillover;
+      }
+
+      const isPartial = totalHours > (AFTERNOON_END - AFTERNOON_START + OVERFLOW_END - AFTERNOON_END);
+      slot.events.push({ ...task, scheduledDay: slot._dayStr, startHour, durationHrs: chunk, isCreative, totalHours, isPartial, chunkHoursPlaced: hoursAlreadyPlaced, colOffset: 0, colCount: 1 });
+      return chunk;
+    }
+  }
+
+  allTasks.forEach(task => {
+    // Fixed-date tasks
+    if (task.fixedDate) {
+      const dayStr = task.fixedDate;
+      const slot = schedule[dayStr];
+      if (!slot || slot.isOOO) return;
+      slot._dayStr = dayStr;
+      const isCreative = CREATIVE_CHANNELS.has(task.channel);
+      const hours = parseFloat(task.hours);
+
+      if (isCreative) {
+        const avail = MORNING_END - slot.morningCursor;
+        if (avail <= 0) return;
+        const chunk = Math.min(hours, avail);
+        const startHour = slot.morningCursor;
+        slot.morningCursor += chunk;
+        slot.events.push({ ...task, scheduledDay: dayStr, startHour, durationHrs: chunk, isCreative, totalHours: hours, isPartial: false, isFixed: true, colOffset: 0, colCount: 1 });
+      } else {
+        const afternoonAvail = AFTERNOON_END - slot.afternoonCursor;
+        const overflowAvail = OVERFLOW_END - slot.overflowCursor;
+        const totalAvail = afternoonAvail + overflowAvail;
+        if (totalAvail <= 0) return;
+        const chunk = Math.min(hours, totalAvail);
+        const startHour = slot.afternoonCursor;
+        if (afternoonAvail >= chunk) { slot.afternoonCursor += chunk; }
+        else { slot.afternoonCursor = AFTERNOON_END; slot.overflowCursor += (chunk - afternoonAvail); }
+        slot.events.push({ ...task, scheduledDay: dayStr, startHour, durationHrs: chunk, isCreative, totalHours: hours, isPartial: false, isFixed: true, colOffset: 0, colCount: 1 });
+      }
+      return;
+    }
+
+    const isCreative = CREATIVE_CHANNELS.has(task.channel);
+    let hoursLeft = parseFloat(task.hours);
+    const totalHours = hoursLeft;
+
+    const candidateDays = availDateStrs.filter(d => !task.due || d <= task.due);
+
+    for (const dayStr of candidateDays) {
+      if (hoursLeft <= 0) break;
+      const slot = schedule[dayStr];
+      slot._dayStr = dayStr;
+
+      if (isCreative) {
+        const avail = MORNING_END - slot.morningCursor;
+        if (avail <= 0) continue;
+        const chunk = Math.min(hoursLeft, avail);
+        const startHour = slot.morningCursor;
+        slot.morningCursor += chunk;
+        const isPartial = totalHours > (MORNING_END - MORNING_START);
+        slot.events.push({ ...task, scheduledDay: dayStr, startHour, durationHrs: chunk, isCreative, totalHours, isPartial, chunkHoursPlaced: totalHours - hoursLeft, colOffset: 0, colCount: 1 });
+        hoursLeft -= chunk;
+      } else {
+        const afternoonAvail = AFTERNOON_END - slot.afternoonCursor;
+        const overflowAvail = OVERFLOW_END - slot.overflowCursor;
+        const totalAvail = afternoonAvail + overflowAvail;
+        if (totalAvail <= 0) continue;
+        const chunk = Math.min(hoursLeft, totalAvail);
+        const startHour = slot.afternoonCursor;
+        if (afternoonAvail >= chunk) { slot.afternoonCursor += chunk; }
+        else { slot.afternoonCursor = AFTERNOON_END; slot.overflowCursor += (chunk - afternoonAvail); }
+        const isPartial = totalHours > (AFTERNOON_END - AFTERNOON_START + OVERFLOW_END - AFTERNOON_END);
+        slot.events.push({ ...task, scheduledDay: dayStr, startHour, durationHrs: chunk, isCreative, totalHours, isPartial, chunkHoursPlaced: totalHours - hoursLeft, colOffset: 0, colCount: 1 });
+        hoursLeft -= chunk;
+      }
+    }
+
+    // Tasks with no due date placed on first available days
+    if (hoursLeft > 0 && !task.due) {
+      for (const dayStr of availDateStrs) {
+        if (hoursLeft <= 0) break;
+        const slot = schedule[dayStr];
+        slot._dayStr = dayStr;
+        if (isCreative) {
+          const avail = MORNING_END - slot.morningCursor;
+          if (avail <= 0) continue;
+          const chunk = Math.min(hoursLeft, avail);
+          const startHour = slot.morningCursor;
+          slot.morningCursor += chunk;
+          slot.events.push({ ...task, scheduledDay: dayStr, startHour, durationHrs: chunk, isCreative, totalHours, isPartial: true, chunkHoursPlaced: totalHours - hoursLeft, colOffset: 0, colCount: 1 });
+          hoursLeft -= chunk;
+        } else {
+          const afternoonAvail = AFTERNOON_END - slot.afternoonCursor;
+          const overflowAvail = OVERFLOW_END - slot.overflowCursor;
+          const totalAvail = afternoonAvail + overflowAvail;
+          if (totalAvail <= 0) continue;
+          const chunk = Math.min(hoursLeft, totalAvail);
+          const startHour = slot.afternoonCursor;
+          if (afternoonAvail >= chunk) { slot.afternoonCursor += chunk; }
+          else { slot.afternoonCursor = AFTERNOON_END; slot.overflowCursor += (chunk - afternoonAvail); }
+          slot.events.push({ ...task, scheduledDay: dayStr, startHour, durationHrs: chunk, isCreative, totalHours, isPartial: true, chunkHoursPlaced: totalHours - hoursLeft, colOffset: 0, colCount: 1 });
+          hoursLeft -= chunk;
+        }
+      }
+    }
+  });
+
+  return schedule;
+}
+
+function renderCalendarHTML() {
+  // Hours to display: 9–19 (lunch 12-13 shown as blocked, 18-19 is overflow)
+  const HOURS = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+  const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+  const weekDates = getWeekDates(calWeekOffset);
+  const workDates = weekDates.filter(d => isWeekday(d)); // Mon–Fri only
+  const todayS = todayStr();
+  const schedule = buildCalendarSchedule(weekDates);
+  const SLOT_H = 46;
+  const WORK_START = 9;
+
+  const wStart = workDates[0], wEnd = workDates[4];
+  const fmtShort = d => `${d.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]}`;
+  const weekLabel = `${fmtShort(wStart)} – ${fmtShort(wEnd)} ${wEnd.getFullYear()}`;
+
+  const hasAny = Object.values(schedule).some(d => d.events.length > 0);
+
+  // OOO Panel HTML
+  const oooChips = oooDatess.map(d => {
+    const [y, m, day] = d.split('-');
+    return `<div class="ooo-chip">${day}/${m}/${y}<button onclick="removeOOO('${d}')" title="Remove">×</button></div>`;
+  }).join('');
+  const oooPanel = `<div class="ooo-panel">
+    <div class="ooo-panel-title">🚫 Out-of-Office Days <span style="font-size:.55rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">— tasks won't be scheduled on these dates</span></div>
+    ${oooDatess.length > 0 ? `<div class="ooo-chips">${oooChips}</div>` : ''}
+    <div class="ooo-add-row">
+      <input type="date" id="ooo-date-input" placeholder="Select date"/>
+      <button class="ooo-add-btn" onclick="addOOO()">+ Add OOO Day</button>
+    </div>
+  </div>`;
+
+  // Header
+  let headerCols = `<div class="cal-time-gutter"></div>`;
+  workDates.forEach((d, i) => {
+    const ds = dateToStr(d);
+    const isToday = ds === todayS;
+    const isOOO = oooDatess.includes(ds);
+    headerCols += `<div class="cal-day-header ${isToday ? 'today-col' : ''} ${isOOO ? 'ooo-col' : ''}">
+      <div class="day-name">${DAY_NAMES[i]}</div>
+      <div class="day-num">${d.getDate()}</div>
+      ${isOOO ? `<div style="font-size:.52rem;color:var(--danger);font-weight:700;margin-top:1px;">OOO</div>` : ''}
+    </div>`;
+  });
+
+  // Time column
+  let timeCol = '';
+  HOURS.forEach(h => {
+    const label = h === 12 ? '12:00' : `${h}:00`;
+    const style = h === 18 ? ' style="color:var(--accent);font-weight:600"' : '';
+    timeCol += `<div class="cal-time-slot"${style}>${label}</div>`;
+  });
+
+  // Day columns with drag-and-drop support
+  let dayCols = '';
+  workDates.forEach(d => {
+    const ds = dateToStr(d);
+    const daySchedule = schedule[ds] || { events: [], isOOO: false };
+    const isOOO = daySchedule.isOOO;
+    let slotsHTML = '';
+    HOURS.forEach(h => {
+      const isLunch = h === 12;
+      const isOverflow = h === 18;
+      slotsHTML += `<div class="cal-slot${isLunch ? ' lunch-slot' : ''}${isOverflow ? ' overflow-slot' : ''}" data-day="${ds}" data-hour="${h}"
+        ondragover="calDragOver(event,this)" ondrop="calDrop(event,this,'${ds}',${h})" ondragleave="calDragLeave(this)"></div>`;
+    });
+
+    let eventsHTML = isOOO ? `<div class="ooo-day-banner">Out of Office</div>` : '';
+    if (!isOOO) {
+      daySchedule.events.forEach(ev => {
+        const topPx = (ev.startHour - WORK_START) * SLOT_H;
+        const heightPx = Math.max(ev.durationHrs * SLOT_H - 3, 26);
+        const bgHex = CH_COLORS[ev.channel] || '#6a96a4';
+        const bgAlpha = 'rgba(' + hexToRgb(bgHex) + ',.12)';
+        const textColor = CH_TEXT[ev.channel] || '#02323e';
+        const borderColor = bgHex;
+        const isChunkLabel = ev.isPartial ? ` · ${ev.durationHrs}h of ${ev.totalHours}h` : `${ev.durationHrs}h`;
+        const windowLabel = ev.isCreative ? '☀️ AM' : (ev.startHour >= 18 ? '🌙 OT' : '🌤 PM');
+        const fixedPin = ev.isFixed ? `<span class="fixed-pin">📌</span>` : '';
+        const isOverflowEv = !ev.isCreative && ev.startHour + ev.durationHrs > 18;
+        eventsHTML += `<div class="cal-event ${ev.isFixed ? 'fixed-event' : ''} ${isOverflowEv ? 'overflow-event' : ''}"
+            draggable="${!ev.isFixed}"
+            data-task-id="${ev.id}" data-proj-id="${ev.projectId}" data-day="${ev.scheduledDay}" data-hour="${ev.startHour}" data-dur="${ev.durationHrs}" data-creative="${ev.isCreative}"
+            style="top:${topPx}px;height:${heightPx}px;background:${bgAlpha};color:${textColor};border-left-color:${borderColor};${ev.isFixed ? 'border-left-width:4px' : ''}"
+            ondragstart="calDragStart(event,this)"
+            ondragend="calDragEnd(event,this)"
+            onclick="openEditTaskById('${ev.projectId}','${ev.id}')">
+          <div class="cal-event-name">${fixedPin}${escH(ev.name)}</div>
+          ${heightPx > 38 ? `<div class="cal-event-sub">◆ ${escH(ev.projectName)}</div>` : ''}
+          ${heightPx > 52 ? `<div class="cal-event-hrs">⏱ ${isChunkLabel} &nbsp;${windowLabel}</div>` : ''}
+          ${ev.isFixed ? `<div class="cal-event-chunk" style="margin-top:2px">🔒 Fixed date</div>` : ''}
+        </div>`;
+      });
+    }
+
+    dayCols += `<div class="cal-day-col ${isOOO ? 'ooo-day' : ''}" data-day="${ds}">${slotsHTML}${eventsHTML}</div>`;
+  });
+
+  const legendHTML = Object.entries(CHANNELS).map(([k, v]) =>
+    `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:${CH_COLORS[k]}"></div>${v.label}</div>`
+  ).join('');
+
+  const noTasksNote = !hasAny ? `<div class="cal-no-tasks">No tasks with hours are scheduled this week.<br><br>Add <strong>Time Needed (hours)</strong> and a due date to a task to see it appear here.<br>Creative tasks → morning · Print tasks → afternoon</div>` : '';
+
+  return `
+    ${oooPanel}
+    <div class="cal-week-nav">
+      <button onclick="calNav(-1)">← Prev</button>
+      <div class="cal-week-label">📅 ${weekLabel}</div>
+      <button onclick="calNav(1)">Next →</button>
+      ${calWeekOffset !== 0 ? `<button onclick="calNav(0,'reset')">This week</button>` : ''}
+    </div>
+    <div class="cal-legend">${legendHTML}
+      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--danger)"></div>Fixed Date</div>
+    </div>
+    ${noTasksNote}
+    <div class="cal-wrap">
+      <div class="cal-header-row">${headerCols}</div>
+      <div class="cal-body">
+        <div class="cal-time-col">${timeCol}</div>
+        ${dayCols}
+      </div>
+    </div>`;
+}
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `${r},${g},${b}`;
+}
+
+function calNav(dir, mode) {
+  if (mode === 'reset') calWeekOffset = 0; else calWeekOffset += dir;
+  const now = new Date();
+  const doy = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+  const tip = TIPS[doy % TIPS.length];
+  renderDashSubView(tip);
+}
+
+// ── OUT OF OFFICE ──
+function saveOOO() { localStorage.setItem('tf_ooo', JSON.stringify(oooDatess)); }
+function addOOO() {
+  const input = document.getElementById('ooo-date-input');
+  if (!input) return;
+  const val = input.value;
+  if (!val) return;
+  if (!oooDatess.includes(val)) { oooDatess.push(val); oooDatess.sort(); saveOOO(); }
+  input.value = '';
+  const now = new Date();
+  const doy = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+  renderDashSubView(TIPS[doy % TIPS.length]);
+}
+function removeOOO(dateStr) {
+  oooDatess = oooDatess.filter(d => d !== dateStr);
+  saveOOO();
+  const now = new Date();
+  const doy = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+  renderDashSubView(TIPS[doy % TIPS.length]);
+}
+
+// ── CALENDAR DRAG & DROP ──
+function calDragStart(e, el) {
+  const taskId = el.dataset.taskId;
+  const projId = el.dataset.projId;
+  e.dataTransfer.setData('text/plain', JSON.stringify({ taskId, projId }));
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => el.classList.add('dragging'), 0);
+}
+function calDragEnd(e, el) {
+  el.classList.remove('dragging');
+  document.querySelectorAll('.cal-slot.drag-over').forEach(s => s.classList.remove('drag-over'));
+  document.querySelectorAll('.cal-day-col.drag-over-col').forEach(c => c.classList.remove('drag-over-col'));
+}
+function calDragOver(e, slot) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.cal-slot.drag-over').forEach(s => s.classList.remove('drag-over'));
+  slot.classList.add('drag-over');
+  const col = slot.closest('.cal-day-col');
+  if (col) { document.querySelectorAll('.cal-day-col.drag-over-col').forEach(c => c.classList.remove('drag-over-col')); col.classList.add('drag-over-col'); }
+}
+function calDragLeave(slot) {
+  slot.classList.remove('drag-over');
+}
+function calDrop(e, slot, newDay, newHour) {
+  e.preventDefault();
+  slot.classList.remove('drag-over');
+  document.querySelectorAll('.cal-day-col.drag-over-col').forEach(c => c.classList.remove('drag-over-col'));
+  let data;
+  try { data = JSON.parse(e.dataTransfer.getData('text/plain')); } catch { return; }
+  const { taskId, projId } = data;
+  const p = getProject(projId); if (!p) return;
+  const t = p.tasks.find(x => x.id === taskId); if (!t || t.fixedDate) return;
+
+  // Update the task's due date to the dropped day (and remember manual placement)
+  t.due = newDay;
+  t.manualScheduledDay = newDay;
+  t.manualStartHour = newHour;
+  save();
+
+  const now = new Date();
+  const doy = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+  renderDashSubView(TIPS[doy % TIPS.length]);
+}
+
+// ── PROJECT VIEW ──
+function renderProjectView() {
+  renderSidebar();
+  const content = document.getElementById('main-content');
+  const p = getProject(activeProjectId);
+  if (!p) { content.innerHTML = `<div class="no-project"><div class="big-icon">📋</div><p>Select or create a project</p></div>`; return; }
+  const pct = calcPct(p), done = p.tasks.filter(t => t.done).length, cd = getProjectCompletionDate(p);
+  let filtered = p.tasks;
+  if (activeFilter !== 'all') filtered = filtered.filter(t => t.channel === activeFilter);
+
+  // Sort: incomplete tasks by due date ASC (no-date last), then completed tasks at bottom
+  filtered = [...filtered].sort((a, b) => {
+    if (a.done && !b.done) return 1;
+    if (!a.done && b.done) return -1;
+    if (a.done && b.done) return 0;
+    if (!a.due && !b.due) return 0;
+    if (!a.due) return 1;
+    if (!b.due) return -1;
+    return a.due < b.due ? -1 : 1;
+  });
+  const filterHTML = Object.entries(CHANNELS).map(([k, v]) =>
+    `<div class="filter-chip ${activeFilter === k ? 'active' : ''}" data-ch="${k}" onclick="setFilter('${k}')">${v.icon} ${v.label}</div>`
+  ).join('');
+  const tasksHTML = filtered.length === 0
+    ? `<div class="empty-state"><span class="icon">✨</span>No tasks here yet. Add one above.</div>`
+    : filtered.map(t => {
+      const ch = CHANNELS[t.channel] || { icon: '📌', label: t.channel };
+      const ds = dateStatus(t.due);
+      const dueClass = ds === 'overdue' ? 'overdue' : ds === 'today' ? 'today' : '';
+      const stKey = t.taskStatus || 'inprogress';
+      return `<div class="task-card ${t.done ? 'done' : ''} ${ds === 'overdue' && !t.done ? 'overdue-card' : ''}" onclick="openEditTask('${p.id}','${t.id}')">
+          <div class="task-checkbox ${t.done ? 'checked' : ''}" onclick="event.stopPropagation();toggleTask('${p.id}','${t.id}')"></div>
+          <div class="task-main">
+            <div class="task-name">${escH(t.name)}</div>
+            <div class="task-sub">
+              ${t.person ? `<span class="person">👤 ${escH(t.person)}</span>` : ''}
+              ${t.due ? `<span class="due ${dueClass}">📅 ${formatDate(t.due)}${ds === 'overdue' && !t.done ? ' ⚠' : ''}</span>` : ''}
+              ${t.hours ? `<span>⏱ ${t.hours}h</span>` : ''}
+              ${t.remarks ? `<span class="remarks">💬 ${escH(t.remarks)}</span>` : ''}
+              ${t.fixedDate ? `<span class="fixed-date-badge">📌 Fixed ${formatDate(t.fixedDate)}</span>` : ''}
+            </div>
+          </div>
+          <span class="status-badge ${stKey}">${STATUS_LABELS[stKey]}</span>
+          <div class="channel-badge ${t.channel}">${ch.icon} ${ch.label}</div>
+          <button class="task-delete" onclick="event.stopPropagation();deleteTask('${p.id}','${t.id}')" title="Delete">×</button>
+        </div>`;
+    }).join('');
+  content.innerHTML = `
+    <div class="project-header">
+      <div class="project-title-block">
+        ${p.entity ? `<div class="proj-entity-badge">${escH(p.entity)}</div>` : ''}
+        <h1>${escH(p.name)}</h1>
+        <div class="big-progress"><span class="pct-num">${pct}%</span>
+          <div class="big-progress-bar"><div class="big-progress-bar-fill" style="width:${pct}%"></div></div></div>
+        <div class="tasks-summary">${done} of ${p.tasks.length} tasks completed</div>
+        ${cd ? `<div class="project-complete-date">📅 Est. project completion: ${formatDate(cd)}</div>` : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:7px">
+        <button class="btn-primary" onclick="openAddTask()">+ Add Task</button>
+        <button class="btn-pdf" onclick="downloadProjectReport('${p.id}')">⬇ Completed Report PDF</button>
+        <button class="delete-project-btn" onclick="deleteProject('${p.id}')">Delete Project</button>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <div class="filter-chip ${activeFilter === 'all' ? 'active' : ''}" data-ch="all" onclick="setFilter('all')">All</div>${filterHTML}
+    </div>
+    <div class="tasks-grid">${tasksHTML}</div>`;
+}
+function setFilter(ch) { activeFilter = ch; renderProjectView(); }
+
+// ── PROJECT MODAL ──
+function openAddProject() {
+  editingProjectId = null;
+  document.getElementById('modal-project-title').textContent = 'New Project';
+  document.getElementById('input-project-name').value = '';
+  document.getElementById('input-project-entity').value = '';
+  openModal('modal-project');
+  setTimeout(() => document.getElementById('input-project-name').focus(), 100);
+}
+function saveProject() {
+  const name = document.getElementById('input-project-name').value.trim();
+  const entity = document.getElementById('input-project-entity').value;
+  if (!name) return;
+  if (editingProjectId) { const p = getProject(editingProjectId); if (p) { p.name = name; p.entity = entity; } }
+  else { const p = { id: uid(), name, entity, tasks: [] }; projects.push(p); activeProjectId = p.id; }
+  save(); closeModal('modal-project');
+  if (currentView === 'projects') { renderSidebar(); renderProjectView(); } else renderDashboard();
+}
+function deleteProject(id) {
+  if (!confirm('Delete this project and all its tasks?')) return;
+  projects = projects.filter(p => p.id !== id); save();
+  activeProjectId = projects.length ? projects[projects.length - 1].id : null;
+  renderSidebar(); renderProjectView();
+}
+function goToProject(id) { activeProjectId = id; activeFilter = 'all'; showView('projects'); }
+
+// ── TASK MODAL ──
+function _resetTaskModal() {
+  document.getElementById('input-task-name').value = '';
+  document.getElementById('input-task-channel').value = 'design';
+  document.getElementById('input-task-status').value = 'inprogress';
+  document.getElementById('input-task-due').value = '';
+  document.getElementById('input-task-hours').value = '';
+  document.getElementById('input-task-person').value = '';
+  document.getElementById('input-task-remarks').value = '';
+  const fd = document.getElementById('input-task-fixed-date');
+  if (fd) fd.value = '';
+  updateChannelHint();
+}
+function openAddTask() {
+  editingTaskId = null; editingTaskProjectId = activeProjectId;
+  document.getElementById('modal-task-title').textContent = 'Add Task';
+  document.getElementById('btn-delete-task-modal').style.display = 'none';
+  _resetTaskModal();
+  const timerInfoEl = document.getElementById('task-modal-timer-info');
+  if (timerInfoEl) timerInfoEl.style.display = 'none';
+  openModal('modal-task');
+  setTimeout(() => document.getElementById('input-task-name').focus(), 100);
+}
+function openEditTask(projectId, taskId) {
+  const p = getProject(projectId); if (!p) return;
+  const t = p.tasks.find(x => x.id === taskId); if (!t) return;
+  editingTaskId = taskId; editingTaskProjectId = projectId;
+  document.getElementById('modal-task-title').textContent = 'Edit Task';
+  document.getElementById('btn-delete-task-modal').style.display = 'block';
+  document.getElementById('input-task-name').value = t.name || '';
+  document.getElementById('input-task-channel').value = t.channel || 'design';
+  document.getElementById('input-task-status').value = t.taskStatus || 'inprogress';
+  document.getElementById('input-task-due').value = t.due || '';
+  document.getElementById('input-task-hours').value = t.hours || '';
+  document.getElementById('input-task-person').value = t.person || '';
+  document.getElementById('input-task-remarks').value = t.remarks || '';
+  const fd = document.getElementById('input-task-fixed-date');
+  if (fd) fd.value = t.fixedDate || '';
+  updateChannelHint();
+
+  // ── Show timer-tracked time if available ──
+  const timerInfoEl = document.getElementById('task-modal-timer-info');
+  if (timerInfoEl) {
+    const key = getTimerKey(projectId, taskId);
+    const timerMs = getCurrentTimerMs(key);
+    if (timerMs > 0) {
+      const totalSec = Math.floor(timerMs / 1000);
+      const hh = Math.floor(totalSec / 3600);
+      const mm = Math.floor((totalSec % 3600) / 60);
+      const ss = totalSec % 60;
+      const hmsStr = `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+      const hoursVal = (timerMs / 3600000).toFixed(2);
+      const sessions = (taskTimerData[key] && taskTimerData[key].sessions) ? taskTimerData[key].sessions.length : 0;
+      const isRunning = !!activeTimers[key];
+      document.getElementById('task-modal-timer-hours').textContent = `${hoursVal}h`;
+      document.getElementById('task-modal-timer-hms').textContent = `(${hmsStr})`;
+      document.getElementById('task-modal-timer-sessions').textContent =
+        `${sessions} recorded session${sessions !== 1 ? 's' : ''}${isRunning ? ' · timer still running' : ''}`;
+      timerInfoEl.style.display = 'flex';
+    } else {
+      timerInfoEl.style.display = 'none';
+    }
+  }
+
+  openModal('modal-task');
+  setTimeout(() => document.getElementById('input-task-name').focus(), 100);
+}
+function openEditTaskById(pId, tId) { openEditTask(pId, tId); }
+function saveTask() {
+  const name = document.getElementById('input-task-name').value.trim(); if (!name) return;
+  const channel = document.getElementById('input-task-channel').value;
+  const taskStatus = document.getElementById('input-task-status').value;
+  const due = document.getElementById('input-task-due').value;
+  const hours = document.getElementById('input-task-hours').value;
+  const person = document.getElementById('input-task-person').value.trim();
+  const remarks = document.getElementById('input-task-remarks').value.trim();
+  const fdEl = document.getElementById('input-task-fixed-date');
+  const fixedDate = fdEl ? fdEl.value : '';
+  const p = getProject(editingTaskProjectId); if (!p) return;
+  if (editingTaskId) {
+    const t = p.tasks.find(x => x.id === editingTaskId);
+    if (t) {
+      t.name = name; t.channel = channel; t.taskStatus = taskStatus;
+      t.due = due; t.hours = hours ? parseFloat(hours) : null;
+      t.person = person; t.remarks = remarks;
+      t.fixedDate = fixedDate || null;
+      if (taskStatus === 'completed') t.done = true;
+    }
+  } else {
+    p.tasks.push({ id: uid(), name, channel, taskStatus, due, hours: hours ? parseFloat(hours) : null, person, remarks, fixedDate: fixedDate || null, done: taskStatus === 'completed' });
+  }
+  save(); closeModal('modal-task');
+  if (currentView === 'projects') { renderSidebar(); renderProjectView(); } else renderDashboard();
+}
+function deleteTaskFromModal() {
+  if (!editingTaskId || !editingTaskProjectId) return;
+  if (!confirm('Delete this task?')) return;
+  const p = getProject(editingTaskProjectId);
+  if (p) p.tasks = p.tasks.filter(t => t.id !== editingTaskId);
+  save(); closeModal('modal-task');
+  if (currentView === 'projects') { renderSidebar(); renderProjectView(); } else renderDashboard();
+}
+function toggleTask(pId, tId) { toggleTaskById(pId, tId); }
+function toggleTaskById(pId, tId) {
+  const p = getProject(pId), t = p && p.tasks.find(x => x.id === tId);
+  if (t) { t.done = !t.done; if (t.done && t.taskStatus !== 'completed') t.taskStatus = 'completed'; else if (!t.done && t.taskStatus === 'completed') t.taskStatus = 'inprogress'; }
+  save();
+  if (currentView === 'projects') { renderSidebar(); renderProjectView(); } else renderDashboard();
+}
+function deleteTask(pId, tId) {
+  const p = getProject(pId); if (p) p.tasks = p.tasks.filter(t => t.id !== tId);
+  save(); renderSidebar(); renderProjectView();
+}
+
+// ── PDF GENERATION ──
+function pdfWeekRange() {
+  const now = new Date();
+  const day = now.getDay();
+  const mon = new Date(now); mon.setDate(now.getDate() - ((day + 6) % 7)); mon.setHours(0,0,0,0);
+  const fri = new Date(mon); fri.setDate(mon.getDate() + 4);
+  const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return { mon, fri, label: `${mon.getDate()} ${M[mon.getMonth()]} – ${fri.getDate()} ${M[fri.getMonth()]} ${fri.getFullYear()}` };
+}
+
+function pdfBrandHeader(doc, subtitle) {
+  const W = doc.internal.pageSize.getWidth();
+  // Dark header bar
+  doc.setFillColor(2, 50, 62);
+  doc.rect(0, 0, W, 22, 'F');
+  doc.setTextColor(244, 173, 53);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Marketing Task Hub', 14, 14);
+  doc.setTextColor(180, 200, 210);
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'normal');
+  doc.text(subtitle, W - 14, 14, { align: 'right' });
+  doc.setTextColor(2, 50, 62);
+}
+
+function pdfFooter(doc) {
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  doc.setDrawColor(208, 221, 227);
+  doc.line(14, H - 14, W - 14, H - 14);
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(106, 150, 164);
+  const now = new Date();
+  doc.text(`Generated ${now.toLocaleDateString('en-GB', { weekday:'long', year:'numeric', month:'long', day:'numeric' })}`, 14, H - 8);
+  doc.text('Marketing Task Hub — Confidential', W - 14, H - 8, { align: 'right' });
+}
+
+function downloadWeeklyReport() {
+  const { jsPDF } = window.jspdf;
+  if (!jsPDF) { alert('PDF library not loaded yet. Please wait a moment and try again.'); return; }
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const W = doc.internal.pageSize.getWidth();
+  const { label: weekLabel } = pdfWeekRange();
+
+  pdfBrandHeader(doc, `Week of ${weekLabel}`);
+
+  // Title block
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(2, 50, 62);
+  doc.text('Weekly Completed Tasks Report', 14, 34);
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(106, 150, 164);
+  doc.text(`Week: ${weekLabel}`, 14, 41);
+
+  // Horizontal rule
+  doc.setDrawColor(208, 221, 227);
+  doc.line(14, 45, W - 14, 45);
+
+  let y = 52;
+  let totalCompleted = 0;
+  let projectsWithData = 0;
+
+  projects.forEach(p => {
+    const completedTasks = p.tasks.filter(t => t.done);
+    if (!completedTasks.length) return;
+    projectsWithData++;
+    totalCompleted += completedTasks.length;
+
+    // Check if we need a new page
+    if (y > 240) { doc.addPage(); pdfBrandHeader(doc, `Week of ${weekLabel}`); pdfFooter(doc); y = 34; }
+
+    // Project heading
+    doc.setFillColor(244, 247, 249);
+    doc.roundedRect(14, y - 5, W - 28, 10, 2, 2, 'F');
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(2, 50, 62);
+    doc.text(`${p.name}${p.entity ? '  [' + p.entity + ']' : ''}`, 18, y + 1.5);
+    const pct = calcPct(p);
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(45, 184, 154);
+    doc.text(`${pct}% complete  •  ${completedTasks.length} task${completedTasks.length !== 1 ? 's' : ''} done`, W - 18, y + 1.5, { align: 'right' });
+    y += 12;
+
+    // Tasks table
+    const rows = completedTasks.map(t => {
+      const ch = CHANNELS[t.channel] || { label: t.channel };
+      return [
+        t.name || '',
+        ch.label,
+        t.person || '—',
+        t.due ? formatDate(t.due) : '—',
+        t.hours ? `${t.hours}h` : '—',
+        t.remarks || ''
+      ];
+    });
+
+    doc.autoTable({
+      startY: y,
+      head: [['Task', 'Channel', 'Person', 'Due Date', 'Hours', 'Remarks']],
+      body: rows,
+      margin: { left: 14, right: 14 },
+      styles: { fontSize: 7.5, cellPadding: 2.5, textColor: [2, 50, 62], lineColor: [208, 221, 227], lineWidth: 0.3 },
+      headStyles: { fillColor: [2, 50, 62], textColor: [244, 247, 249], fontStyle: 'bold', fontSize: 7.5 },
+      alternateRowStyles: { fillColor: [244, 247, 249] },
+      columnStyles: {
+        0: { cellWidth: 52 },
+        1: { cellWidth: 22 },
+        2: { cellWidth: 22 },
+        3: { cellWidth: 20 },
+        4: { cellWidth: 14 },
+        5: { cellWidth: 'auto' }
+      },
+      didDrawPage: () => { pdfBrandHeader(doc, `Week of ${weekLabel}`); pdfFooter(doc); }
+    });
+
+    y = doc.lastAutoTable.finalY + 10;
+  });
+
+  if (projectsWithData === 0) {
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(106, 150, 164);
+    doc.text('No completed tasks found.', W / 2, 90, { align: 'center' });
+  } else {
+    // Summary box
+    if (y > 245) { doc.addPage(); pdfBrandHeader(doc, `Week of ${weekLabel}`); y = 34; }
+    doc.setFillColor(244, 173, 53, 0.08);
+    doc.setDrawColor(244, 173, 53);
+    doc.roundedRect(14, y, W - 28, 14, 2, 2, 'FD');
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(2, 50, 62);
+    doc.text(`Summary: ${totalCompleted} task${totalCompleted !== 1 ? 's' : ''} completed across ${projectsWithData} project${projectsWithData !== 1 ? 's' : ''} this week`, W / 2, y + 9, { align: 'center' });
+  }
+
+  pdfFooter(doc);
+  const { label } = pdfWeekRange();
+  doc.save(`Weekly_Completed_Report_${label.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+}
+
+function downloadProjectReport(projectId) {
+  const { jsPDF } = window.jspdf;
+  if (!jsPDF) { alert('PDF library not loaded yet. Please wait a moment and try again.'); return; }
+  const p = getProject(projectId);
+  if (!p) return;
+  const completedTasks = p.tasks.filter(t => t.done);
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const W = doc.internal.pageSize.getWidth();
+  const subtitle = `${p.name}${p.entity ? ' [' + p.entity + ']' : ''} — Completed Tasks`;
+
+  pdfBrandHeader(doc, subtitle);
+
+  // Title
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(2, 50, 62);
+  doc.text(p.name, 14, 34);
+  if (p.entity) {
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(244, 173, 53);
+    doc.text(`[${p.entity}]`, 14 + doc.getTextWidth(p.name) + 3, 34);
+  }
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(106, 150, 164);
+  doc.text('Completed Tasks Report', 14, 41);
+
+  // Stats row
+  const pct = calcPct(p);
+  const cd = getProjectCompletionDate(p);
+  doc.setFontSize(7.5);
+  doc.setTextColor(45, 184, 154);
+  doc.text(`${pct}% complete  •  ${completedTasks.length} of ${p.tasks.length} tasks done${cd ? '  •  Est. completion: ' + formatDate(cd) : ''}`, 14, 48);
+
+  doc.setDrawColor(208, 221, 227);
+  doc.line(14, 52, W - 14, 52);
+
+  if (completedTasks.length === 0) {
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(106, 150, 164);
+    doc.text('No completed tasks in this project yet.', W / 2, 75, { align: 'center' });
+  } else {
+    const rows = completedTasks.map(t => {
+      const ch = CHANNELS[t.channel] || { label: t.channel };
+      return [
+        t.name || '',
+        ch.label,
+        t.person || '—',
+        t.due ? formatDate(t.due) : '—',
+        t.hours ? `${t.hours}h` : '—',
+        t.remarks || ''
+      ];
+    });
+
+    doc.autoTable({
+      startY: 57,
+      head: [['Task', 'Channel', 'Person', 'Due Date', 'Hours', 'Remarks']],
+      body: rows,
+      margin: { left: 14, right: 14 },
+      styles: { fontSize: 7.5, cellPadding: 2.8, textColor: [2, 50, 62], lineColor: [208, 221, 227], lineWidth: 0.3 },
+      headStyles: { fillColor: [2, 50, 62], textColor: [244, 247, 249], fontStyle: 'bold', fontSize: 7.5 },
+      alternateRowStyles: { fillColor: [244, 247, 249] },
+      columnStyles: {
+        0: { cellWidth: 52 },
+        1: { cellWidth: 22 },
+        2: { cellWidth: 22 },
+        3: { cellWidth: 20 },
+        4: { cellWidth: 14 },
+        5: { cellWidth: 'auto' }
+      },
+      didDrawPage: () => { pdfBrandHeader(doc, subtitle); pdfFooter(doc); }
+    });
+
+    const finalY = doc.lastAutoTable.finalY + 10;
+    doc.setFillColor(244, 247, 249);
+    doc.setDrawColor(208, 221, 227);
+    doc.roundedRect(14, finalY, W - 28, 12, 2, 2, 'FD');
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(2, 50, 62);
+    doc.text(`${completedTasks.length} completed task${completedTasks.length !== 1 ? 's' : ''} — ${p.tasks.length - completedTasks.length} remaining`, W / 2, finalY + 8, { align: 'center' });
+  }
+
+  pdfFooter(doc);
+  const safeName = (p.name || 'Project').replace(/[^a-zA-Z0-9]/g, '_');
+  doc.save(`${safeName}_Completed_Tasks.pdf`);
+}
+
+// ── STAT MODALS ──
+function openStatModal(type) {
+  const title = type === 'overdue' ? '⚠ Overdue Tasks' : '✅ Completed Tasks';
+  document.getElementById('stat-modal-title').textContent = title;
+  let html = '';
+  projects.forEach(p => {
+    const tasks = p.tasks.filter(t => type === 'overdue' ? (!t.done && dateStatus(t.due) === 'overdue') : t.done);
+    if (!tasks.length) return;
+    const ch_sorted = [...tasks].sort((a, b) => {
+      if (type === 'overdue') { if (!a.due && !b.due) return 0; if (!a.due) return 1; if (!b.due) return -1; return a.due < b.due ? -1 : 1; }
+      return a.name < b.name ? -1 : 1;
+    });
+    html += `<div class="stat-modal-proj-section">
+      <div class="stat-modal-proj-name">◆ ${escH(p.name)}${p.entity ? ` [${escH(p.entity)}]` : ''}</div>
+      ${ch_sorted.map(t => {
+        const ch = CHANNELS[t.channel] || { icon: '📌', label: t.channel };
+        const stKey = t.taskStatus || 'inprogress';
+        const ds = dateStatus(t.due);
+        return `<div class="today-task-item ${type === 'overdue' ? 'overdue-row' : ''}" onclick="openEditTaskById('${p.id}','${t.id}');closeStatModal()">
+          <div class="task-checkbox ${t.done ? 'checked' : ''}" onclick="event.stopPropagation();toggleTaskById('${p.id}','${t.id}');openStatModal('${type}')"></div>
+          <div class="today-task-info">
+            <div class="today-task-name ${t.done ? 'done-text' : ''}">${escH(t.name)}</div>
+            <div class="today-task-meta">
+              ${t.person ? `<span>👤 ${escH(t.person)}</span>` : ''}
+              <span class="channel-badge ${t.channel}">${ch.icon} ${ch.label}</span>
+              <span class="status-badge ${stKey}">${STATUS_LABELS[stKey]}</span>
+              ${t.due ? `<span>📅 ${formatDate(t.due)}${type === 'overdue' ? ' ⚠' : ''}</span>` : ''}
+              ${t.hours ? `<span>⏱ ${t.hours}h</span>` : ''}
+            </div>
+          </div>
+          <div></div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  });
+  if (!html) html = `<div class="stat-modal-empty">${type === 'overdue' ? '🎉 No overdue tasks! You\'re on top of everything.' : '📭 No completed tasks yet.'}</div>`;
+  document.getElementById('stat-modal-body').innerHTML = html;
+  document.getElementById('stat-modal').classList.add('open');
+}
+function closeStatModal() { document.getElementById('stat-modal').classList.remove('open'); }
+
+// ── MODALS ──
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+document.getElementById('input-project-name').addEventListener('keydown', e => { if (e.key === 'Enter') saveProject(); });
+document.getElementById('input-task-name').addEventListener('keydown', e => { if (e.key === 'Enter') saveTask(); });
+
+// ── INIT ──
+updateHeaderStats();
+showView('dashboard');
+</script>
+</body>
+</html>
