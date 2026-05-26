@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Marketing Task Hub — Pooja's Workspace</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 :root {
@@ -486,17 +487,60 @@ aside{border-right:1px solid var(--border);display:flex;flex-direction:column;pa
   </div>
 </div>
 
+<!-- Supabase loading overlay -->
+<div id="db-loading-overlay" style="position:fixed;inset:0;background:#fff;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
+  <div style="font-size:1.4rem;font-weight:700;color:#02323e;font-family:'DM Sans',sans-serif;">Marketing Task Hub</div>
+  <div style="width:40px;height:40px;border:3px solid #e9eff3;border-top-color:#f4ad35;border-radius:50%;animation:spin .7s linear infinite;"></div>
+  <div id="db-loading-msg" style="font-size:.75rem;color:#6a96a4;font-family:'DM Sans',sans-serif;">Connecting to database…</div>
+  <style>@keyframes spin{to{transform:rotate(360deg);}}</style>
+</div>
+
 <script>
+// ── SUPABASE ──
+const _supa = supabase.createClient(
+  'https://qinxbdgymbqesykegxxh.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFpbnhiZGd5bWJxZXN5a2VneHhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTkyMTgsImV4cCI6MjA5NTM5NTIxOH0.bTwod6U_6h2opjFaXldCWuC50bEpM7jponrDYbq3Qj4'
+);
+
+async function dbLoad() {
+  try {
+    document.getElementById('db-loading-msg').textContent = 'Loading your projects…';
+    const { data: pRow } = await _supa.from('projects').select('data').eq('id','main').maybeSingle();
+    if (pRow) { projects = pRow.data.projects || []; oooDatess = pRow.data.ooo || []; }
+    document.getElementById('db-loading-msg').textContent = 'Loading timers…';
+    const { data: tRow } = await _supa.from('timers').select('data').eq('id','main').maybeSingle();
+    if (tRow) { taskTimerData = tRow.data || {}; }
+  } catch(e) { console.error('DB load error', e); }
+  document.getElementById('db-loading-overlay').style.display = 'none';
+  updateHeaderStats();
+  showView('dashboard');
+}
+
+async function save() {
+  try { await _supa.from('projects').upsert({ id:'main', data:{ projects, ooo: oooDatess } }); }
+  catch(e) { console.error('Save error', e); }
+}
+
+async function saveTimerData() {
+  try { await _supa.from('timers').upsert({ id:'main', data: taskTimerData }); }
+  catch(e) { console.error('Timer save error', e); }
+}
+
+async function saveOOO() {
+  try { await _supa.from('projects').upsert({ id:'main', data:{ projects, ooo: oooDatess } }); }
+  catch(e) { console.error('OOO save error', e); }
+}
+
 // ── STATE ──
-let projects = JSON.parse(localStorage.getItem('tf_projects') || '[]');
+let projects = [];
 let activeProjectId = null, activeFilter = 'all', currentView = 'dashboard', dashSubView = 'today';
 let editingProjectId = null, editingTaskId = null, editingTaskProjectId = null;
 let calWeekOffset = 0;
-let oooDatess = JSON.parse(localStorage.getItem('tf_ooo') || '[]'); // Out-of-office dates array of 'YYYY-MM-DD'
+let oooDatess = [];
 let calDragState = null; // { taskId, projectId, originalDay, originalHour }
 
 // ── TIMER STATE ──
-let taskTimerData = JSON.parse(localStorage.getItem('tf_timers') || '{}');
+let taskTimerData = {};
 // Structure: { taskKey: { accumulatedMs: number, sessions: [{start, end}] } }
 let activeTimers = {};
 // Structure: { taskKey: { intervalId, startedAt } }
@@ -558,7 +602,6 @@ const TIPS = [
 ];
 
 // ── UTILS ──
-function save() { localStorage.setItem('tf_projects', JSON.stringify(projects)); }
 function getProject(id) { return projects.find(p => p.id === id); }
 function calcPct(p) { if (!p.tasks.length) return 0; return Math.round(p.tasks.filter(t => t.done).length / p.tasks.length * 100); }
 function localDateStr(d) { const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
@@ -694,7 +737,8 @@ function getTimerData(key) {
 }
 
 function saveTimerData() {
-  localStorage.setItem('tf_timers', JSON.stringify(taskTimerData));
+  // async Supabase save defined at top
+  _supa.from('timers').upsert({ id:'main', data: taskTimerData }).catch(e => console.error('Timer save error',e));
 }
 
 function fmtTimerMs(ms) {
@@ -1338,7 +1382,7 @@ function calNav(dir, mode) {
 }
 
 // ── OUT OF OFFICE ──
-function saveOOO() { localStorage.setItem('tf_ooo', JSON.stringify(oooDatess)); }
+function saveOOO() { _supa.from('projects').upsert({ id:'main', data:{ projects, ooo: oooDatess } }).catch(e => console.error('OOO save error',e)); }
 function addOOO() {
   const input = document.getElementById('ooo-date-input');
   if (!input) return;
@@ -1901,8 +1945,7 @@ document.getElementById('input-project-name').addEventListener('keydown', e => {
 document.getElementById('input-task-name').addEventListener('keydown', e => { if (e.key === 'Enter') saveTask(); });
 
 // ── INIT ──
-updateHeaderStats();
-showView('dashboard');
+dbLoad();
 </script>
 </body>
 </html>
