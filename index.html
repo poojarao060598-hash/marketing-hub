@@ -351,7 +351,30 @@ aside{border-right:1px solid var(--border);display:flex;flex-direction:column;pa
 .cal-day-col.drag-over-col{background:rgba(244,173,53,.06);}
 
 /* ── FIXED DATE TASK ── */
-/* ── JUICE VIEW ── */
+/* ── SUBTASKS ── */
+.task-card-wrap { margin-bottom:10px; }
+.task-card-wrap .task-card { margin-bottom:0; border-radius:var(--radius) var(--radius) 0 0; }
+.task-card-wrap.no-subtasks .task-card { border-radius:var(--radius); margin-bottom:0; }
+.task-card { margin-bottom:0; }
+.subtask-tree { position:relative; padding-left:32px; background:linear-gradient(180deg,#f8fafc,#fff); border:1px solid var(--border); border-top:none; border-radius:0 0 var(--radius) var(--radius); padding-bottom:6px; padding-right:0; padding-top:4px; }
+.subtask-tree::before { content:''; position:absolute; left:20px; top:0; bottom:22px; width:1.5px; background:var(--border); border-radius:2px; }
+.subtask-row { position:relative; margin:5px 10px 0 0; padding:8px 10px; background:#fff; border:1px solid var(--border); border-radius:var(--radius); display:grid; grid-template-columns:16px 1fr auto; gap:9px; align-items:center; cursor:pointer; transition:all .15s; }
+.subtask-row::before { content:''; position:absolute; left:-12px; top:50%; width:12px; height:1.5px; background:var(--border); }
+.subtask-row::after { content:''; position:absolute; left:-12px; top:0; bottom:50%; width:1.5px; background:var(--border); }
+.subtask-row:first-child::after { display:none; }
+.subtask-row:hover { border-color:var(--accent); background:var(--surface); }
+.subtask-row.done-sub { opacity:.42; }
+.subtask-row.overdue-sub { border-left:2px solid var(--overdue); }
+.subtask-name { font-size:.75rem; font-weight:500; color:var(--text); }
+.subtask-name.done-text { text-decoration:line-through; color:var(--muted); }
+.subtask-meta { display:flex; gap:8px; flex-wrap:wrap; margin-top:2px; align-items:center; }
+.subtask-meta span { font-size:.6rem; color:var(--muted); }
+.subtask-add-row { padding:6px 10px 2px 0; }
+.subtask-add-btn { padding:4px 12px; background:transparent; border:1px dashed var(--border); border-radius:var(--radius); font-size:.63rem; color:var(--muted); cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .15s; }
+.subtask-add-btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(244,173,53,.05); }
+.subtask-count { display:inline-flex; align-items:center; gap:4px; font-size:.58rem; padding:2px 8px; background:var(--surface); border:1px solid var(--border); border-radius:20px; color:var(--muted); font-weight:600; cursor:default; }
+.subtask-count.active { color:var(--accent2); border-color:rgba(45,184,154,.3); background:var(--accent2-bg); }
+.dep-label { font-size:.52rem; text-transform:uppercase; letter-spacing:1.2px; color:var(--muted2); font-weight:700; padding:4px 10px 0 0; display:block; }
 .juice-follower-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow);flex:1;min-width:0;transition:all .15s;}
 .juice-follower-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
 .juice-follower-card.own{background:linear-gradient(135deg,rgba(244,173,53,.09),rgba(45,184,154,.05));border:2px solid var(--accent);}
@@ -623,6 +646,7 @@ async function saveJuice() {
 let projects = [];
 let activeProjectId = null, activeFilter = 'all', currentView = 'dashboard', dashSubView = 'today';
 let editingProjectId = null, editingTaskId = null, editingTaskProjectId = null;
+let editingSubtaskParentId = null; // set when adding/editing a subtask
 let calWeekOffset = 0;
 let oooDatess = [];
 let calDragState = null; // { taskId, projectId, originalDay, originalHour }
@@ -1023,20 +1047,55 @@ function renderTodayHTML(tip) {
   const pending = [];
   projects.forEach(p => p.tasks.forEach(t => {
     const s = dateStatus(t.due);
-    if (s === 'overdue' || s === 'today' || s === 'soon') pending.push({ ...t, projectName: p.name, projectId: p.id, status: s });
+    if (s === 'overdue' || s === 'today' || s === 'soon')
+      pending.push({ ...t, projectName: p.name, projectId: p.id, status: s, isSubtask: false });
+    // Also collect subtasks with due dates
+    (t.subtasks || []).forEach(sub => {
+      const ss = dateStatus(sub.due);
+      if (ss === 'overdue' || ss === 'today' || ss === 'soon')
+        pending.push({ ...sub, projectName: p.name, projectId: p.id, status: ss, isSubtask: true, parentTaskId: t.id, parentTaskName: t.name });
+    });
   }));
   const ord = { overdue: 0, today: 1, soon: 2 };
-  // Active tasks sorted by urgency, then completed tasks go to the bottom
   const active = pending.filter(t => !t.done).sort((a, b) => ord[a.status] - ord[b.status]);
-  const done = pending.filter(t => t.done).sort((a, b) => ord[a.status] - ord[b.status]);
+  const done   = pending.filter(t =>  t.done).sort((a, b) => ord[a.status] - ord[b.status]);
   const sorted = [...active, ...done];
-  // separator between active and done
   const sepIdx = active.length;
   const taskItems = sorted.map((t, i) => {
     const ch = CHANNELS[t.channel] || { icon: '📌', label: t.channel };
     const badge = t.status === 'overdue' ? `<span class="overdue-label">⚠ OVERDUE</span>` : t.status === 'today' ? `<span class="due-today-label">Due Today</span>` : `<span class="due-soon-label">Due soon</span>`;
     const stKey = t.taskStatus || 'inprogress';
     const sep = (i === sepIdx && done.length > 0 && active.length > 0) ? `<div style="text-align:center;font-size:.58rem;color:var(--muted2);padding:6px 0;letter-spacing:.8px;text-transform:uppercase;font-weight:600">✓ Completed</div>` : '';
+
+    // Subtask: simpler card, no timer, different handlers
+    if (t.isSubtask) {
+      const onCheck = `event.stopPropagation();toggleSubtask('${t.projectId}','${t.parentTaskId}','${t.id}')`;
+      const onClick = `openEditSubtask('${t.projectId}','${t.parentTaskId}','${t.id}')`;
+      return sep + `<div class="today-task-wrap">
+        <div class="today-task-item ${t.done ? 'done' : ''} ${t.status === 'overdue' && !t.done ? 'overdue-row' : ''}"
+          style="margin-bottom:0;border-radius:var(--radius);border-left:3px solid var(--border);background:#fafbfc;"
+          onclick="${onClick}">
+          <div class="task-checkbox ${t.done ? 'checked' : ''}" style="width:14px;height:14px;border-radius:3px;flex-shrink:0;" onclick="${onCheck}"></div>
+          <div class="today-task-info">
+            <div class="today-task-name ${t.done ? 'done-text' : ''}" style="font-size:.75rem;">
+              <span style="font-size:.6rem;color:var(--muted);font-weight:500;margin-right:5px;">↳ subtask</span>${escH(t.name)}
+            </div>
+            <div class="today-task-meta">
+              <span class="proj-tag" style="opacity:.7;">◆ ${escH(t.projectName)}</span>
+              <span style="font-size:.58rem;color:var(--muted);background:var(--surface);padding:1px 6px;border-radius:4px;border:1px solid var(--border);">📋 ${escH(t.parentTaskName.length > 22 ? t.parentTaskName.slice(0,22)+'…' : t.parentTaskName)}</span>
+              ${t.person ? `<span>👤 ${escH(t.person)}</span>` : ''}
+              <span class="channel-badge ${t.channel}">${ch.icon} ${ch.label}</span>
+              <span class="status-badge ${stKey}">${STATUS_LABELS[stKey]}</span>
+              ${t.due ? `<span>📅 ${formatDate(t.due)}</span>` : ''}
+              ${t.hours ? `<span>⏱ ${t.hours}h</span>` : ''}
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">${badge}</div>
+        </div>
+      </div>`;
+    }
+
+    // Main task: full card with timer
     const key = getTimerKey(t.projectId, t.id);
     const timerMs = getCurrentTimerMs(key);
     const isTimerRunning = !!activeTimers[key];
@@ -1690,10 +1749,53 @@ function renderProjectView() {
       const ds = dateStatus(t.due);
       const dueClass = ds === 'overdue' ? 'overdue' : ds === 'today' ? 'today' : '';
       const stKey = t.taskStatus || 'inprogress';
-      return `<div class="task-card ${t.done ? 'done' : ''} ${ds === 'overdue' && !t.done ? 'overdue-card' : ''}" onclick="openEditTask('${p.id}','${t.id}')">
+      const subs = t.subtasks || [];
+      const subsDone = subs.filter(s => s.done).length;
+      const hasSubtasks = subs.length > 0;
+      const subCountHTML = hasSubtasks
+        ? `<span class="subtask-count ${subsDone > 0 ? 'active' : ''}">⤷ ${subsDone}/${subs.length} subtasks</span>`
+        : '';
+
+      // Build subtask rows
+      const subtaskRowsHTML = subs.map((s, si) => {
+        const sch = CHANNELS[s.channel] || { icon:'📌', label: s.channel };
+        const sds = dateStatus(s.due);
+        const sstKey = s.taskStatus || 'inprogress';
+        return `<div class="subtask-row ${s.done ? 'done-sub' : ''} ${sds === 'overdue' && !s.done ? 'overdue-sub' : ''}"
+            onclick="openEditSubtask('${p.id}','${t.id}','${s.id}')">
+          <div class="task-checkbox ${s.done ? 'checked' : ''}" style="width:14px;height:14px;border-radius:3px;flex-shrink:0;"
+            onclick="event.stopPropagation();toggleSubtask('${p.id}','${t.id}','${s.id}')"></div>
+          <div>
+            <div class="subtask-name ${s.done ? 'done-text' : ''}">${escH(s.name)}</div>
+            <div class="subtask-meta">
+              ${s.person ? `<span>👤 ${escH(s.person)}</span>` : ''}
+              ${s.due ? `<span class="${sds === 'overdue' && !s.done ? 'overdue' : sds === 'today' ? 'today' : ''}">📅 ${formatDate(s.due)}${sds === 'overdue' && !s.done ? ' ⚠' : ''}</span>` : ''}
+              ${s.hours ? `<span>⏱ ${s.hours}h</span>` : ''}
+              <span class="status-badge ${sstKey}" style="font-size:.52rem;padding:1px 5px;">${STATUS_LABELS[sstKey]}</span>
+              <span class="channel-badge ${s.channel}" style="font-size:.52rem;padding:1px 6px;">${sch.icon} ${sch.label}</span>
+            </div>
+          </div>
+          <button class="task-delete" onclick="event.stopPropagation();deleteSubtask('${p.id}','${t.id}','${s.id}')" title="Delete subtask" style="font-size:.75rem;width:20px;height:20px;">×</button>
+        </div>`;
+      }).join('');
+
+      const subtaskTreeHTML = `<div class="subtask-tree">
+        ${hasSubtasks ? `<span class="dep-label">Dependencies</span>` : ''}
+        ${subtaskRowsHTML}
+        <div class="subtask-add-row">
+          <button class="subtask-add-btn" onclick="openAddSubtask('${p.id}','${t.id}')">＋ Add subtask</button>
+        </div>
+      </div>`;
+
+      return `<div class="task-card-wrap ${hasSubtasks ? '' : 'no-subtasks'}">
+        <div class="task-card ${t.done ? 'done' : ''} ${ds === 'overdue' && !t.done ? 'overdue-card' : ''}"
+          onclick="openEditTask('${p.id}','${t.id}')">
           <div class="task-checkbox ${t.done ? 'checked' : ''}" onclick="event.stopPropagation();toggleTask('${p.id}','${t.id}')"></div>
           <div class="task-main">
-            <div class="task-name">${escH(t.name)}</div>
+            <div class="task-name" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              ${escH(t.name)}
+              ${subCountHTML}
+            </div>
             <div class="task-sub">
               ${t.person ? `<span class="person">👤 ${escH(t.person)}</span>` : ''}
               ${t.due ? `<span class="due ${dueClass}">📅 ${formatDate(t.due)}${ds === 'overdue' && !t.done ? ' ⚠' : ''}</span>` : ''}
@@ -1702,10 +1804,14 @@ function renderProjectView() {
               ${t.fixedDate ? `<span class="fixed-date-badge">📌 Fixed ${formatDate(t.fixedDate)}</span>` : ''}
             </div>
           </div>
-          <span class="status-badge ${stKey}">${STATUS_LABELS[stKey]}</span>
-          <div class="channel-badge ${t.channel}">${ch.icon} ${ch.label}</div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
+            <span class="status-badge ${stKey}">${STATUS_LABELS[stKey]}</span>
+            <div class="channel-badge ${t.channel}">${ch.icon} ${ch.label}</div>
+          </div>
           <button class="task-delete" onclick="event.stopPropagation();deleteTask('${p.id}','${t.id}')" title="Delete">×</button>
-        </div>`;
+        </div>
+        ${subtaskTreeHTML}
+      </div>`;
     }).join('');
   content.innerHTML = `
     <div class="project-header">
@@ -1770,7 +1876,7 @@ function _resetTaskModal() {
   updateChannelHint();
 }
 function openAddTask() {
-  editingTaskId = null; editingTaskProjectId = activeProjectId;
+  editingTaskId = null; editingTaskProjectId = activeProjectId; editingSubtaskParentId = null;
   document.getElementById('modal-task-title').textContent = 'Add Task';
   document.getElementById('btn-delete-task-modal').style.display = 'none';
   _resetTaskModal();
@@ -1779,10 +1885,11 @@ function openAddTask() {
   openModal('modal-task');
   setTimeout(() => document.getElementById('input-task-name').focus(), 100);
 }
+
 function openEditTask(projectId, taskId) {
   const p = getProject(projectId); if (!p) return;
   const t = p.tasks.find(x => x.id === taskId); if (!t) return;
-  editingTaskId = taskId; editingTaskProjectId = projectId;
+  editingTaskId = taskId; editingTaskProjectId = projectId; editingSubtaskParentId = null;
   document.getElementById('modal-task-title').textContent = 'Edit Task';
   document.getElementById('btn-delete-task-modal').style.display = 'block';
   document.getElementById('input-task-name').value = t.name || '';
@@ -1795,46 +1902,96 @@ function openEditTask(projectId, taskId) {
   const fd = document.getElementById('input-task-fixed-date');
   if (fd) fd.value = t.fixedDate || '';
   updateChannelHint();
-
-  // ── Show timer-tracked time if available ──
+  // ── Timer info ──
   const timerInfoEl = document.getElementById('task-modal-timer-info');
   if (timerInfoEl) {
     const key = getTimerKey(projectId, taskId);
     const timerMs = getCurrentTimerMs(key);
     if (timerMs > 0) {
       const totalSec = Math.floor(timerMs / 1000);
-      const hh = Math.floor(totalSec / 3600);
-      const mm = Math.floor((totalSec % 3600) / 60);
-      const ss = totalSec % 60;
-      const hmsStr = `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
-      const hoursVal = (timerMs / 3600000).toFixed(2);
+      const hh = Math.floor(totalSec / 3600), mm = Math.floor((totalSec % 3600) / 60), ss = totalSec % 60;
+      document.getElementById('task-modal-timer-hours').textContent = `${(timerMs/3600000).toFixed(2)}h`;
+      document.getElementById('task-modal-timer-hms').textContent = `(${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')})`;
       const sessions = (taskTimerData[key] && taskTimerData[key].sessions) ? taskTimerData[key].sessions.length : 0;
-      const isRunning = !!activeTimers[key];
-      document.getElementById('task-modal-timer-hours').textContent = `${hoursVal}h`;
-      document.getElementById('task-modal-timer-hms').textContent = `(${hmsStr})`;
-      document.getElementById('task-modal-timer-sessions').textContent =
-        `${sessions} recorded session${sessions !== 1 ? 's' : ''}${isRunning ? ' · timer still running' : ''}`;
+      document.getElementById('task-modal-timer-sessions').textContent = `${sessions} recorded session${sessions !== 1 ? 's' : ''}${activeTimers[key] ? ' · timer still running' : ''}`;
       timerInfoEl.style.display = 'flex';
-    } else {
-      timerInfoEl.style.display = 'none';
-    }
+    } else { timerInfoEl.style.display = 'none'; }
   }
-
   openModal('modal-task');
   setTimeout(() => document.getElementById('input-task-name').focus(), 100);
 }
 function openEditTaskById(pId, tId) { openEditTask(pId, tId); }
+
+function openAddSubtask(projectId, parentTaskId) {
+  editingTaskId = null; editingTaskProjectId = projectId; editingSubtaskParentId = parentTaskId;
+  const p = getProject(projectId);
+  const parent = p && p.tasks.find(t => t.id === parentTaskId);
+  document.getElementById('modal-task-title').textContent = `↳ Add Subtask${parent ? ' — ' + parent.name.slice(0,28) + (parent.name.length > 28 ? '…' : '') : ''}`;
+  document.getElementById('btn-delete-task-modal').style.display = 'none';
+  _resetTaskModal();
+  // Pre-fill channel and person from parent
+  if (parent) {
+    document.getElementById('input-task-channel').value = parent.channel || 'design';
+    document.getElementById('input-task-person').value = parent.person || '';
+    document.getElementById('input-task-due').value = parent.due || '';
+    updateChannelHint();
+  }
+  const timerInfoEl = document.getElementById('task-modal-timer-info');
+  if (timerInfoEl) timerInfoEl.style.display = 'none';
+  openModal('modal-task');
+  setTimeout(() => document.getElementById('input-task-name').focus(), 100);
+}
+
+function openEditSubtask(projectId, parentTaskId, subtaskId) {
+  const p = getProject(projectId); if (!p) return;
+  const parent = p.tasks.find(t => t.id === parentTaskId); if (!parent) return;
+  const s = (parent.subtasks || []).find(x => x.id === subtaskId); if (!s) return;
+  editingTaskId = subtaskId; editingTaskProjectId = projectId; editingSubtaskParentId = parentTaskId;
+  document.getElementById('modal-task-title').textContent = `↳ Edit Subtask`;
+  document.getElementById('btn-delete-task-modal').style.display = 'block';
+  document.getElementById('input-task-name').value = s.name || '';
+  document.getElementById('input-task-channel').value = s.channel || 'design';
+  document.getElementById('input-task-status').value = s.taskStatus || 'inprogress';
+  document.getElementById('input-task-due').value = s.due || '';
+  document.getElementById('input-task-hours').value = s.hours || '';
+  document.getElementById('input-task-person').value = s.person || '';
+  document.getElementById('input-task-remarks').value = s.remarks || '';
+  const fd = document.getElementById('input-task-fixed-date');
+  if (fd) fd.value = s.fixedDate || '';
+  updateChannelHint();
+  const timerInfoEl = document.getElementById('task-modal-timer-info');
+  if (timerInfoEl) timerInfoEl.style.display = 'none';
+  openModal('modal-task');
+  setTimeout(() => document.getElementById('input-task-name').focus(), 100);
+}
+
 function saveTask() {
   const name = document.getElementById('input-task-name').value.trim(); if (!name) return;
-  const channel = document.getElementById('input-task-channel').value;
+  const channel    = document.getElementById('input-task-channel').value;
   const taskStatus = document.getElementById('input-task-status').value;
-  const due = document.getElementById('input-task-due').value;
-  const hours = document.getElementById('input-task-hours').value;
-  const person = document.getElementById('input-task-person').value.trim();
-  const remarks = document.getElementById('input-task-remarks').value.trim();
-  const fdEl = document.getElementById('input-task-fixed-date');
-  const fixedDate = fdEl ? fdEl.value : '';
+  const due        = document.getElementById('input-task-due').value;
+  const hours      = document.getElementById('input-task-hours').value;
+  const person     = document.getElementById('input-task-person').value.trim();
+  const remarks    = document.getElementById('input-task-remarks').value.trim();
+  const fdEl       = document.getElementById('input-task-fixed-date');
+  const fixedDate  = fdEl ? fdEl.value : '';
   const p = getProject(editingTaskProjectId); if (!p) return;
+
+  // ── Subtask save path ──
+  if (editingSubtaskParentId) {
+    const parent = p.tasks.find(t => t.id === editingSubtaskParentId); if (!parent) return;
+    if (!parent.subtasks) parent.subtasks = [];
+    const subtaskData = { name, channel, taskStatus, due, hours: hours ? parseFloat(hours) : null, person, remarks, fixedDate: fixedDate || null, done: taskStatus === 'completed' };
+    if (editingTaskId) {
+      const idx = parent.subtasks.findIndex(s => s.id === editingTaskId);
+      if (idx >= 0) { const wasNotDone = !parent.subtasks[idx].done; parent.subtasks[idx] = { ...parent.subtasks[idx], ...subtaskData }; if (wasNotDone && parent.subtasks[idx].done) { closeModal('modal-task'); save(); renderProjectView(); showCompletionCelebration(); return; } }
+    } else {
+      parent.subtasks.push({ id: uid(), ...subtaskData });
+    }
+    save(); closeModal('modal-task'); renderProjectView(); return;
+  }
+
+  // ── Main task save path ──
   if (editingTaskId) {
     const t = p.tasks.find(x => x.id === editingTaskId);
     if (t) {
@@ -1847,18 +2004,48 @@ function saveTask() {
       if (wasNotDone && t.done) { closeModal('modal-task'); save(); if (currentView === 'projects') { renderSidebar(); renderProjectView(); } else renderDashboard(); showCompletionCelebration(); return; }
     }
   } else {
-    p.tasks.push({ id: uid(), name, channel, taskStatus, due, hours: hours ? parseFloat(hours) : null, person, remarks, fixedDate: fixedDate || null, done: taskStatus === 'completed' });
+    p.tasks.push({ id: uid(), name, channel, taskStatus, due, hours: hours ? parseFloat(hours) : null, person, remarks, fixedDate: fixedDate || null, done: taskStatus === 'completed', subtasks: [] });
   }
   save(); closeModal('modal-task');
   if (currentView === 'projects') { renderSidebar(); renderProjectView(); } else renderDashboard();
 }
+
 function deleteTaskFromModal() {
-  if (!editingTaskId || !editingTaskProjectId) return;
-  if (!confirm('Delete this task?')) return;
+  if (!editingTaskProjectId) return;
   const p = getProject(editingTaskProjectId);
+  // Delete subtask
+  if (editingSubtaskParentId && editingTaskId) {
+    if (!confirm('Delete this subtask?')) return;
+    const parent = p && p.tasks.find(t => t.id === editingSubtaskParentId);
+    if (parent) parent.subtasks = (parent.subtasks || []).filter(s => s.id !== editingTaskId);
+    save(); closeModal('modal-task'); renderProjectView(); return;
+  }
+  // Delete main task
+  if (!editingTaskId) return;
+  if (!confirm('Delete this task and all its subtasks?')) return;
   if (p) p.tasks = p.tasks.filter(t => t.id !== editingTaskId);
   save(); closeModal('modal-task');
   if (currentView === 'projects') { renderSidebar(); renderProjectView(); } else renderDashboard();
+}
+
+function toggleSubtask(pId, taskId, subId) {
+  const p = getProject(pId); if (!p) return;
+  const parent = p.tasks.find(t => t.id === taskId); if (!parent) return;
+  const s = (parent.subtasks || []).find(x => x.id === subId); if (!s) return;
+  const wasNotDone = !s.done;
+  s.done = !s.done;
+  if (s.done && s.taskStatus !== 'completed') s.taskStatus = 'completed';
+  else if (!s.done && s.taskStatus === 'completed') s.taskStatus = 'inprogress';
+  if (wasNotDone && s.done) { save(); renderProjectView(); showCompletionCelebration(); return; }
+  save(); renderProjectView();
+}
+
+function deleteSubtask(pId, taskId, subId) {
+  if (!confirm('Delete this subtask?')) return;
+  const p = getProject(pId); if (!p) return;
+  const parent = p.tasks.find(t => t.id === taskId); if (!parent) return;
+  parent.subtasks = (parent.subtasks || []).filter(s => s.id !== subId);
+  save(); renderProjectView();
 }
 // ── CELEBRATION ──
 function launchConfetti() {
